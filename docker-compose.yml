@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: piserver-attendance
+    ports:
+      - "${ATT_PORT:-5000}:5000"
+    environment:
+      - ATT_ENV=${ATT_ENV:-prod}
+      - ATT_DB=/data/attendance.db
+      - ATT_PORT=5000
+      - SECRET_KEY=${SECRET_KEY:-change_me_please}
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - attendance-data:/data
+      - attendance-faces:/data/faces
+      - attendance-uploads:/app/static/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  attendance-data:
+    driver: local
+  attendance-faces:
+    driver: local
+  attendance-uploads:
+    driver: local

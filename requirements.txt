@@ -1,0 +1,82 @@
+# Core Framework
+Flask>=3.0.0
+Werkzeug>=3.0.0
+
+# HTTP and API
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Date and Time
+python-dateutil>=2.8.2
+
+# Excel and Data Processing
+openpyxl>=3.1.0
+pandas>=2.0.0
+
+# PDF Generation
+reportlab>=4.0.0
+
+# Image Processing
+Pillow>=10.0.0
+
+# Environment Configuration
+python-dotenv>=1.0.0
+
+# Database (Optional PostgreSQL support)
+# Uncomment if using PostgreSQL instead of SQLite
+# psycopg2-binary>=2.9.0
+
+# Caching (Optional Redis support)
+# Uncomment if using Redis caching
+# redis>=5.0.0
+# flask-caching>=2.1.0
+
+# Email Support
+# Uncomment if using email notifications
+# flask-mail>=0.9.1
+
+# Security Enhancements
+cryptography>=41.0.0
+
+# API Documentation (Optional)
+# Uncomment for auto-generated API docs
+# flask-swagger-ui>=4.11.1
+# apispec>=6.3.0
+
+# Monitoring and Logging (Optional)
+# Uncomment for production monitoring
+# sentry-sdk>=1.40.0
+# prometheus-flask-exporter>=0.22.0
+
+# Testing (Development only)
+# pytest>=7.4.0
+# pytest-flask>=1.2.0
+# pytest-cov>=4.1.0
+# faker>=20.0.0
+
+# Code Quality (Development only)
+# black>=23.0.0
+# flake8>=6.1.0
+# mypy>=1.7.0
+
+# Performance
+gunicorn>=21.2.0  # Production WSGI server
+
+# QR Code Generation (Optional)
+# Uncomment if implementing QR code check-in
+# qrcode>=7.4.2
+
+# Rate Limiting
+Flask-Limiter>=3.5.0
+
+# CORS Support
+flask-cors>=4.0.0
+
+# Scheduled Tasks
+APScheduler>=3.10.0
+
+# Data Validation
+marshmallow>=3.20.0
+
+# Timezone Support
+pytz>=2023.3
