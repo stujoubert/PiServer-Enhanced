@@ -1,0 +1,201 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+.accounts-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 20px;
+}
+
+.accounts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.accounts-header h2 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.table-accounts thead th {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e6e8eb;
+}
+
+.table-accounts tbody td {
+    vertical-align: middle;
+}
+
+.account-inactive {
+    opacity: 0.55;
+}
+
+.account-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+</style>
+
+<div class="accounts-card">
+
+    <!-- HEADER -->
+    <div class="accounts-header">
+        <h2>{{ T.nav_accounts or "Accounts" }}</h2>
+
+        <!-- CREATE ACCOUNT -->
+        <form method="post"
+              action="{{ url_for('accounts.accounts_create') }}"
+              class="d-flex gap-2 flex-wrap">
+
+            <input type="text"
+                   name="username"
+                   class="form-control form-control-sm"
+                   placeholder="{{ T.username or 'Username' }}"
+                   required>
+
+            <input type="password"
+                   name="password"
+                   class="form-control form-control-sm"
+                   placeholder="{{ T.password or 'Password' }}"
+                   required>
+
+            <select name="role"
+                    class="form-select form-select-sm"
+                    required>
+                <option value="viewer">{{ T.role_viewer or "Viewer" }}</option>
+                <option value="manager">{{ T.role_manager or "Manager" }}</option>
+                <option value="admin">{{ T.role_admin or "Admin" }}</option>
+            </select>
+
+            <button class="btn btn-primary btn-sm">
+                {{ T.create or "Create" }}
+            </button>
+        </form>
+    </div>
+
+    <!-- TABLE -->
+    <table class="table table-accounts">
+        <thead>
+            <tr>
+                <th>{{ T.username or "Username" }}</th>
+                <th>{{ T.role or "Role" }}</th>
+                <th>{{ T.status or "Status" }}</th>
+                <th>{{ T.actions or "Actions" }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for acc in accounts %}
+            <tr class="{{ '' if acc.active else 'account-inactive' }}">
+                <td>{{ acc.username }}</td>
+                <td>{{ acc.role }}</td>
+                <td>
+                    {% if acc.active %}
+                        <span class="badge bg-success">
+                            {{ T.active or "Active" }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary">
+                            {{ T.inactive or "Inactive" }}
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="account-actions">
+
+                        <!-- RESET PASSWORD (MODAL TRIGGER) -->
+                        <button class="btn btn-outline-warning btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#resetModal{{ acc.id }}">
+                            {{ T.reset_password or "Reset password" }}
+                        </button>
+
+                        <!-- ACTIVATE / DEACTIVATE (NOT FOR SELF) -->
+                        {% if acc.id != session.get("account_id") %}
+                        <form method="post"
+                              action="{{ url_for('accounts.accounts_toggle', account_id=acc.id) }}">
+                            {% if acc.active %}
+                                <button class="btn btn-danger btn-sm">
+                                    {{ T.deactivate or "Deactivate" }}
+                                </button>
+                            {% else %}
+                                <button class="btn btn-success btn-sm">
+                                    {{ T.activate or "Activate" }}
+                                </button>
+                            {% endif %}
+                        </form>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                {{ T.current_user or "Current user" }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </td>
+            </tr>
+
+            <!-- RESET PASSWORD MODAL -->
+            <div class="modal fade"
+                 id="resetModal{{ acc.id }}"
+                 tabindex="-1"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <form method="post"
+                              action="{{ url_for('accounts.accounts_reset', account_id=acc.id) }}">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    {{ T.reset_password or "Reset password" }}
+                                </h5>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p class="small text-muted">
+                                    {{ T.username or "Username" }}:
+                                    <strong>{{ acc.username }}</strong>
+                                </p>
+
+                                <input type="password"
+                                       name="password"
+                                       class="form-control"
+                                       placeholder="{{ T.new_password or 'New password' }}"
+                                       required>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary btn-sm"
+                                        data-bs-dismiss="modal">
+                                    {{ T.cancel or "Cancel" }}
+                                </button>
+                                <button class="btn btn-warning btn-sm">
+                                    {{ T.reset_password or "Reset password" }}
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

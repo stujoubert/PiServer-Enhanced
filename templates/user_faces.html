@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3 class="fw-bold mb-3">
+    {{ T.face_library if T.face_library is defined else 'Face Library' }}
+    –
+    {{ T.employee_id if T.employee_id is defined else 'Employee ID' }}
+    {{ employee_id }}
+</h3>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fill,120px); gap:12px;">
+  {% for f in faces %}
+    <div>
+      <img
+        src="{{ f.picture_url }}"
+        style="width:120px; border-radius:6px;"
+        loading="lazy"
+      >
+      <small class="text-muted">
+        {{ T.created_at if T.created_at is defined else 'Created at' }}:
+        {{ f.created_at }}
+      </small>
+    </div>
+  {% else %}
+    <div class="text-muted">
+        {{ T.no_faces if T.no_faces is defined else 'No face images available.' }}
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

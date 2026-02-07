@@ -1,0 +1,17 @@
+[Unit]
+Description=Attendance Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/attendance
+EnvironmentFile=/opt/attendance/.env.dev
+ExecStart=/opt/attendance/venv/bin/python /opt/attendance/server.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

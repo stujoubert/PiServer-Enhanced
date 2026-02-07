@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 class="mb-4">Assign Shifts to Users</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Current Shift Rotation</th>
+            <th>Assign New Shift</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.employee_id }}</td>
+            <td>{{ u.name }}</td>
+            <td>
+                {% for rot in rotations %}
+                    {% if rot[0] == u.rotation_id %}
+                        {{ rot[1] }}
+                    {% endif %}
+                {% endfor %}
+                {% if not u.rotation_id %}
+                    <span class="text-muted">None</span>
+                {% endif %}
+            </td>
+
+            <td>
+                <form method="POST" action="{{ url_for('shifts_users_assign') }}">
+                    <input type="hidden" name="employee_id" value="{{ u.employee_id }}">
+
+                    <select name="rotation_id" class="form-select form-select-sm" required>
+                        <option value="">-- Select Shift Rotation --</option>
+                        {% for rot in rotations %}
+                            <option value="{{ rot[0] }}"
+                                {% if rot[0] == u.rotation_id %}selected{% endif %}>
+                                {{ rot[1] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">
+                        Save
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

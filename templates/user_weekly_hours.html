@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+{% block content %}
+{% set T = g.T %}
+
+<style>
+/* ---------------- PRINT SETTINGS ---------------- */
+@media print {
+    @page {
+        size: A5 portrait;
+        margin: 10mm;
+    }
+
+    body {
+        font-size: 11px;
+    }
+
+    .d-print-none {
+        display: none !important;
+    }
+}
+
+/* ---------------- TABLE LAYOUT ---------------- */
+.hours-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.hours-table th,
+.hours-table td {
+    border: 1px solid #bbb;
+    padding: 4px 6px;
+    font-size: 11px;
+}
+
+.hours-table th {
+    background: #f8f8f8;
+    font-weight: 600;
+}
+
+/* Column widths optimized for A5 */
+.col-day { width: 22%; }
+.col-in  { width: 19%; }
+.col-out { width: 19%; }
+.col-hrs { width: 20%; }
+.col-ot  { width: 20%; }
+
+/* Signature spacing */
+.signature-line {
+    margin-top: 28px;
+    border-top: 1px solid #000;
+    width: 100%;
+}
+
+/* ---------------- CONTRAST FIX ---------------- */
+.hours-table thead th {
+    background-color: #e9ecef !important;
+    color: #000 !important;
+    border-color: #999 !important;
+}
+
+.hours-table tbody td {
+    color: #000 !important;
+    border-color: #aaa !important;
+}
+
+.hours-table tbody tr:nth-child(even) {
+    background-color: #f7f7f7;
+}
+
+.hours-table td {
+    font-weight: 500;
+}
+
+@media print {
+    .hours-table thead th {
+        background-color: #ddd !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .hours-table tbody tr:nth-child(even) {
+        background-color: #f2f2f2 !important;
+    }
+}
+</style>
+
+<div class="card-modern" style="max-width: 100%;">
+
+    <!-- TITLE -->
+    <h3 class="fw-bold mb-2">
+        {{ T.weekly_hours_report }}
+    </h3>
+
+    <!-- CONTROLS -->
+    <form method="get" class="row g-3 align-items-end mb-3 d-print-none">
+
+        <div class="col-6">
+            <label class="form-label fw-semibold">{{ T.week_type }}</label>
+            <select name="week_type" class="form-select" onchange="this.form.submit()">
+                <option value="mon_sat" {{ 'selected' if week_type == 'mon_sat' else '' }}>{{ T.mon_sat }}</option>
+                <option value="sat_fri" {{ 'selected' if week_type == 'sat_fri' else '' }}>{{ T.sat_fri }}</option>
+                <option value="sun_sat" {{ 'selected' if week_type == 'sun_sat' else '' }}>{{ T.sun_sat }}</option>
+            </select>
+        </div>
+
+        <div class="col-6">
+            <label class="form-label fw-semibold">{{ T.week }}</label>
+            <select name="week" class="form-select" onchange="this.form.submit()">
+                {% for ws, we in week_list %}
+                    <option value="{{ ws }}" {{ 'selected' if ws == week_start else '' }}>
+                        {{ ws }} → {{ we }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <!-- META -->
+    <p class="mb-1">
+        <strong>{{ T.employee }}:</strong> {{ employee_id }}
+    </p>
+    <p class="mb-3">
+        <strong>{{ T.period }}:</strong> {{ week_start }} → {{ week_end }}
+    </p>
+
+    <!-- HOURS TABLE -->
+    <table class="hours-table">
+        <thead>
+            <tr>
+                <th class="col-day">{{ T.day }}</th>
+                <th class="col-in text-center">{{ T.first_in }}</th>
+                <th class="col-out text-center">{{ T.last_out }}</th>
+                <th class="col-hrs text-end">{{ T.hours }}</th>
+                <th class="col-ot text-end">{{ T.overtime }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in week_dates %}
+                {% set rec = report.days.get(d.isoformat()) if report else None %}
+                <tr>
+                    <td>{{ d }}</td>
+                    <td class="text-center">{{ rec.in if rec else "" }}</td>
+                    <td class="text-center">{{ rec.out if rec else "" }}</td>
+                    <td class="text-end">{{ rec.hours if rec else "00:00" }}</td>
+                    <td class="text-end">{{ rec.ot if rec else "00:00" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- TOTALS -->
+    <div class="row mt-3">
+        <div class="col-4">
+            <strong>{{ T.regular_hours }}:</strong><br>
+            {{ report.total_regular if report else "0.00" }}
+        </div>
+        <div class="col-4">
+            <strong>{{ T.overtime_hours }}:</strong><br>
+            {{ report.total_ot if report else "0.00" }}
+        </div>
+        <div class="col-4">
+            <strong>{{ T.total_hours }}:</strong><br>
+            {{ report.total_all if report else "0.00" }}
+        </div>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="row mt-4">
+        <div class="col-6">
+            <strong>{{ T.employee_signature }}</strong>
+            <div class="signature-line"></div>
+        </div>
+        <div class="col-6">
+            <strong>{{ T.date }}</strong>
+            <div class="signature-line"></div>
+        </div>
+    </div>
+
+    <!-- PDF -->
+    <a class="btn btn-primary"
+       href="{{ url_for('users.user_weekly_hours_pdf',
+            employee_id=employee_id,
+            week=week_start,
+            week_type=week_type) }}">
+       {{ T.download_pdf }}
+    </a>
+
+</div>
+
+{% endblock %}

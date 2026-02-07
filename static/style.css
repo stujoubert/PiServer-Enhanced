@@ -1,0 +1,715 @@
+/* ================================
+   GLOBAL STYLES
+   ================================ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+    color: #333;
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ================================
+   SIDEBAR
+   ================================ */
+.sidebar {
+    width: 220px;
+    background: #1f2937;
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.sidebar h2 {
+    font-size: 22px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    color: #d1d5db;
+    text-decoration: none;
+    margin: 8px 0;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.sidebar a:hover {
+    background: #374151;
+}
+
+.sidebar a.active {
+    background: #2563eb;
+    color: white;
+}
+
+/* LOGO */
+.logo-container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.logo-img {
+    width: 120px;
+    height: auto;
+    border-radius: 6px;
+}
+
+/* ================================
+   MAIN CONTENT
+   ================================ */
+.content {
+    flex-grow: 1;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+/* ================================
+   TABLES
+   ================================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background: #2563eb;
+    color: white;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background: #f3f4f6;
+}
+
+/* ================================
+   CARDS
+   ================================ */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* ================================
+   BUTTONS
+   ================================ */
+button, .btn {
+    background: #2563eb;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .btn:hover {
+    background: #1e40af;
+}
+
+.btn.small {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+
+.btn.info { background: #3498db; color: white; }
+.btn.info:hover { background: #2980b9; }
+
+/* ================================
+   FORMS
+   ================================ */
+input, select {
+    padding: 10px;
+    margin: 8px 0;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* ================================
+   RESPONSIVE (MOBILE)
+   ================================ */
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        text-align: center;
+    }
+    .sidebar a {
+        display: inline-block;
+        margin: 5px;
+        padding: 10px 15px;
+    }
+}
+
+/* ==================================
+   EMAIL CONFIRMATION
+   ================================= */
+.flash-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.flash {
+    padding: 12px 18px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.flash-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.flash-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.flash {
+    animation: fadeout 4s forwards;
+}
+
+@keyframes fadeout {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.badge-green { background: #2ecc71; color: white; }
+.badge-red { background: #e74c3c; color: white; }
+
+/* JSON VIEW */
+.json-box {
+    background: #1e1e1e;
+    color: #8ae234;
+    padding: 15px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    margin-top: 10px;
+}
+
+/* ------------------------------------ */
+/* RESPONSIVE ADAPTIVE DESIGN */
+/* ------------------------------------ */
+
+/* CARD LAYOUT */
+.card {
+    width: 100%;
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+/* MAKE FORMS RESPONSIVE */
+.form-row {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 12px;
+}
+
+.form-row label {
+    width: 180px;
+}
+
+.form-row input,
+.form-row select {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+    .form-row label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .form-row input,
+    .form-row select {
+        width: 100%;
+    }
+}
+
+/* TABLE WRAPPER */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    th, td {
+        padding: 10px 6px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+}
+
+/* BUTTONS MOBILE */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+}
+
+/* NAVIGATION BAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.navbar a {
+    padding: 10px 14px;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .navbar a {
+        width: 100%;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+}
+
+/* GALLERY GRID */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 1024px) {
+    .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+/* =====================================
+   SHIFT MANAGEMENT DROPDOWN (NEW)
+   ===================================== */
+
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-dropdown-btn {
+    background: #2563eb;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+}
+
+.nav-dropdown-btn:hover {
+    background: #1e40af;
+}
+
+.nav-dropdown-content {
+    display: none;
+    position: absolute;
+    background: #1f2937;
+    min-width: 180px;
+    border-radius: 6px;
+    box-shadow: 0 4px 9px rgba(0,0,0,0.4);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.nav-dropdown-content a {
+    display: block;
+    padding: 10px 14px;
+    color: #d1d5db;
+    text-decoration: none;
+}
+
+.nav-dropdown-content a:hover {
+    background: #374151;
+}
+
+.nav-dropdown:hover .nav-dropdown-content {
+    display: block;
+}
+
+.navbar-logo img {
+    height: 40px;
+    width: auto;
+    display: block;
+}
+
+.logo-container img {
+    max-height: 50px;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+}
+
+
+/* MOBILE DROPDOWN FIX */
+@media (max-width: 768px) {
+    .nav-dropdown {
+        width: 100%;
+    }
+
+    .nav-dropdown-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-dropdown-content {
+        position: relative;
+        width: 100%;
+    }
+    
+    .navbar-logo img {
+        height: 32px;
+    }
+
+}
+
+/* ---------- Mobile table handling ---------- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+@media (max-width: 768px) {
+    table {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+}
+
+
+/* ============================
+   PAYROLL TABLE CLEANUP
+============================ */
+
+.payroll-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    background: #fff;
+}
+
+/* Header row */
+.payroll-table thead th {
+    background: #f5f6fa;
+    font-weight: bold;
+    padding: 8px 6px;
+    border-bottom: 2px solid #d0d3da;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Subheader row (IN/OUT/Hrs/OT) */
+.payroll-table thead tr:nth-child(2) th {
+    background: #eef0f3;
+    font-size: 12px;
+    padding: 6px 4px;
+}
+
+/* Vertical separators between days */
+.payroll-table td,
+.payroll-table th {
+    border-right: 1px solid #e2e3e5;
+}
+
+.payroll-table th:last-child,
+.payroll-table td:last-child {
+    border-right: none;
+}
+
+/* Zebra stripes */
+.payroll-table tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+/* Cell padding */
+.payroll-table td {
+    padding: 6px 4px;
+    text-align: center;
+}
+
+/* Employee name left aligned */
+.payroll-table .employee-name {
+    text-align: left;
+    font-weight: 600;
+    padding-left: 8px;
+    white-space: nowrap;
+}
+
+/* Total columns highlighted */
+.payroll-table td.total {
+    background: #fff8e1;
+    font-weight: bold;
+    border-left: 2px solid #f4c542;
+}
+
+/* Slight hover highlight */
+.payroll-table tbody tr:hover {
+    background: #f0f7ff;
+}
+
+/* Optional: thinner borders for minimalism */
+.payroll-table td,
+.payroll-table th {
+    border-bottom: 1px solid #ececec;
+}
+
+/* Make the top date headers stand out */
+.payroll-table thead tr:first-child th {
+    background: #e9edf5;
+    border-bottom: 2px solid #b7bfd1;
+}
+
+/* Responsive tweaks */
+@media (max-width: 1200px) {
+    .payroll-table {
+        font-size: 12px;
+    }
+}
+
+/* ============================
+   STICKY PAYROLL HEADERS
+============================ */
+
+.payroll-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+/* First header row (dates) */
+.payroll-table thead tr:first-child th {
+    top: 0;
+    background: #e9edf5;
+    z-index: 6;
+}
+
+/* Second header row (IN / OUT / Hrs / OT) */
+.payroll-table thead tr:nth-child(2) th {
+    top: 38px; /* height of first header row */
+    background: #eef0f3;
+    z-index: 5;
+}
+
+/* ============================
+   DAY SEPARATORS
+============================ */
+
+/* Strong separator before each new day */
+.payroll-table th:nth-child(2),
+.payroll-table td:nth-child(2) {
+    border-left: 3px solid #b7bfd1;
+}
+
+/* Repeat every 4 columns (IN / OUT / Hrs / OT) */
+.payroll-table th:nth-child(6),
+.payroll-table td:nth-child(6),
+.payroll-table th:nth-child(10),
+.payroll-table td:nth-child(10),
+.payroll-table th:nth-child(14),
+.payroll-table td:nth-child(14),
+.payroll-table th:nth-child(18),
+.payroll-table td:nth-child(18),
+.payroll-table th:nth-child(22),
+.payroll-table td:nth-child(22),
+.payroll-table th:nth-child(26),
+.payroll-table td:nth-child(26),
+.payroll-table th:nth-child(30),
+.payroll-table td:nth-child(30) {
+    border-left: 3px solid #b7bfd1;
+}
+
+/* Softer inner borders */
+.payroll-table td,
+.payroll-table th {
+    border-right: 1px solid #e1e4ea;
+}
+
+/* Payroll table improvements */
+.payroll-table {
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+/* Sticky header */
+.payroll-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 5;
+    border-bottom: 2px solid #333;
+}
+
+/* Vertical day separators */
+.payroll-table th:nth-child(4n + 2),
+.payroll-table td:nth-child(4n + 2) {
+    border-left: 3px solid #dee2e6;
+}
+
+/* Employee name emphasis */
+.employee-name {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Totals emphasis */
+.total {
+    font-weight: 700;
+    background: #f1f3f5;
+}
+
+/* Hover readability */
+.payroll-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* ================================
+   PAYROLL TABLE IMPROVEMENTS
+   ================================ */
+
+.payroll-table {
+    font-size: 0.85rem;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Sticky header */
+.payroll-table thead th {
+    position: sticky;
+    top: 70px; /* matches navbar height */
+    background: #1b1d21;
+    color: #fff;
+    z-index: 5;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Day column separators */
+.payroll-table th.day-sep,
+.payroll-table td.day-sep {
+    border-left: 3px solid #adb5bd;
+}
+
+/* Cell spacing */
+.payroll-table td,
+.payroll-table th {
+    padding: 6px 8px;
+    vertical-align: middle;
+}
+
+/* Employee column */
+.payroll-table .employee-name {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Totals emphasis */
+.payroll-table td.total {
+    font-weight: 700;
+    background: #1f2937;
+}
+
+/* Hover clarity */
+.payroll-table tbody tr:hover {
+    background: #eef2ff;
+}
+
+/* Restore Bootstrap contextual button colors */
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+}
+
+/* === User active/inactive toggle ONLY === */
+.user-status-btn.active {
+    color: #198754 !important;
+    border: 1px solid #198754 !important;
+    background: transparent !important;
+}
+
+.user-status-btn.inactive {
+    color: #dc3545 !important;
+    border: 1px solid #dc3545 !important;
+    background: transparent !important;
+}
+
+.user-status-btn.active:hover {
+    background: #198754 !important;
+    color: #fff !important;
+}
+
+.user-status-btn.inactive:hover {
+    background: #dc3545 !important;
+    color: #fff !important;
+}

@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>{{ T.nav_admin }}</h2>
+</div>
+
+<div class="card">
+    <h3>{{ T.smtp_settings or 'SMTP / Email Settings' }}</h3>
+
+    <form method="post" action="{{ url_for('admin_settings_save', lang=current_lang) }}">
+
+        <!-- Sender email -->
+        <div class="form-row">
+            <label>{{ T.smtp_sender or 'Sender email' }}:</label>
+            <input type="email" name="smtp_sender" value="{{ smtp }}">
+        </div>
+
+        <!-- SMTP host -->
+        <div class="form-row">
+            <label>{{ T.smtp_host or 'SMTP host' }}:</label>
+            <input type="text" name="smtp_host" value="{{ get_setting('smtp_host','smtp.gmail.com') }}">
+        </div>
+
+        <!-- SMTP port -->
+        <div class="form-row">
+            <label>{{ T.smtp_port or 'SMTP port' }}:</label>
+            <input type="number" name="smtp_port" value="{{ get_setting('smtp_port','587') }}">
+        </div>
+
+        <!-- SMTP password -->
+        <div class="form-row">
+            <label>{{ T.smtp_password or 'SMTP password' }}:</label>
+            <input type="password" name="smtp_pass" value="{{ get_setting('smtp_pass','') }}">
+        </div>
+
+        <!-- Report recipient -->
+        <div class="form-row">
+            <label>{{ T.report_recipient or 'Report recipient' }}:</label>
+            <input type="email" name="report_recipient" value="{{ get_setting('report_recipient','') }}">
+        </div>
+
+        <!-- Weekly schedule -->
+        <div class="form-row">
+            <label>{{ T.weekly_schedule or 'Weekly schedule' }}:</label>
+            <input type="text" name="schedule" value="{{ schedule }}">
+            <span class="small-text">(e.g. "Mon 07:00")</span>
+        </div>
+
+        <!-- Workday settings -->
+        <h4 style="margin-top: 1.4rem;">{{ T.workday_settings or 'Workday Settings' }}</h4>
+
+        <div class="form-row">
+            <label>{{ T.work_start_time or 'Workday start time' }}:</label>
+            <input type="time" name="work_start_time" value="{{ get_setting('work_start_time','08:00') }}">
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.work_end_time or 'Workday end time' }}:</label>
+            <input type="time" name="work_end_time" value="{{ get_setting('work_end_time','17:00') }}">
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-row">
+            <button class="btn" type="submit">
+                {{ T.save or 'Save' }}
+            </button>
+
+            <a class="btn secondary btn-secondary"
+               href="{{ url_for('admin_test_email', lang=current_lang) }}">
+                {{ T.send_test_email or 'Send test email' }}
+            </a>
+        </div>
+
+    </form>
+</div>
+
+<style>
+/* Group buttons nicely and make responsive */
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+}
+
+.button-row .btn {
+    margin: 0;
+}
+
+/* Improve form behavior on mobile */
+@media (max-width: 768px) {
+    .form-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+    }
+
+    .form-row label {
+        min-width: 0;
+        margin-bottom: 0.3rem;
+    }
+
+    .button-row .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+
+{% endblock %}

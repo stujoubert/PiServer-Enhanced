@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>{{ T.shift_types or 'Shift Types' }}</h2>
+
+    <form method="post" action="{{ url_for('shift_types_add', lang=current_lang) }}">
+
+        <div class="form-row">
+            <label>{{ T.name or 'Name' }}:</label>
+            <input name="name" required>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.start_time or 'Start Time' }}:</label>
+            <input type="time" name="start_time" required>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.end_time or 'End Time' }}:</label>
+            <input type="time" name="end_time" required>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.break_minutes or 'Break (min)' }}:</label>
+            <input type="number" name="break_minutes" value="0">
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.overnight or 'Overnight' }}:</label>
+            <select name="overnight">
+                <option value="0">{{ T.no or 'No' }}</option>
+                <option value="1">{{ T.yes or 'Yes' }}</option>
+            </select>
+        </div>
+
+        <button class="btn" type="submit">
+            {{ T.add_shift or 'Add Shift' }}
+        </button>
+
+    </form>
+</div>
+
+<div class="card">
+    <h3>{{ T.existing_shifts or 'Existing Shifts' }}</h3>
+
+    {% if rows %}
+    <div class="table-wrap">
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>{{ T.name or 'Name' }}</th>
+                    <th>{{ T.start_time or 'Start' }}</th>
+                    <th>{{ T.end_time or 'End' }}</th>
+                    <th>{{ T.break_minutes or 'Break (min)' }}</th>
+                    <th>{{ T.overnight or 'Overnight' }}</th>
+                    <th>{{ T.actions or '' }}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for r in rows %}
+                <tr>
+                    <td data-label="ID">{{ r[0] }}</td>
+                    <td data-label="{{ T.name or 'Name' }}">{{ r[1] }}</td>
+                    <td data-label="{{ T.start_time or 'Start' }}">{{ r[2] }}</td>
+                    <td data-label="{{ T.end_time or 'End' }}">{{ r[3] }}</td>
+                    <td data-label="{{ T.break_minutes or 'Break' }}">{{ r[4] }}</td>
+                    <td data-label="{{ T.overnight or 'Overnight' }}">
+                        {% if r[5] == 1 %}
+                            {{ T.yes or 'Yes' }}
+                        {% else %}
+                            {{ T.no or 'No' }}
+                        {% endif %}
+                    </td>
+
+                    <td data-label="{{ T.actions or 'Actions' }}">
+                        <form method="post"
+                              action="{{ url_for('shift_types_delete', id=r[0], lang=current_lang) }}"
+                              onsubmit="return confirm('{{ T.confirm_delete or 'Delete this item?' }}');"
+                              class="inline">
+                            <button class="btn danger btn-danger" type="submit">
+                                {{ T.delete or 'Delete' }}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+    {% else %}
+        <div class="no-data">{{ T.no_data_range or 'No shift types found.' }}</div>
+    {% endif %}
+</div>
+
+{% endblock %}

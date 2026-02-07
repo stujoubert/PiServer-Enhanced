@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>{{ device_name }} – {{ T.fetch_now or 'Fetch Now' }}</h2>
+
+    <p>
+        <strong>Status:</strong> {{ status }}<br>
+        <strong>Count:</strong> {{ count }}<br>
+        {% if message %}
+            <strong>Message:</strong> {{ message }}
+        {% endif %}
+    </p>
+
+    {% if raw %}
+        <h3>Raw Response</h3>
+        <pre style="max-height:400px; overflow:auto; background:#f7f7f7; padding:1rem;">{{ raw }}</pre>
+    {% endif %}
+</div>
+
+{% endblock %}

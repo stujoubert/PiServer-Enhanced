@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>{{ device_name }} – {{ T.last_50_events or 'Last 50 events' }}</h2>
+
+    {% if events and events|length > 0 %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ T.employee_id }}</th>
+                    <th>{{ T.name }}</th>
+                    <th>{{ T.col_timestamp }}</th>
+                    <th>{{ T.col_type }}</th>
+                    <th>Picture</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in events %}
+                    {# (employee_id, name, timestamp, type, picture_url) #}
+                    <tr>
+                        <td>{{ e[0] }}</td>
+                        <td>{{ e[1] }}</td>
+                        <td>{{ e[2] }}</td>
+                        <td>{{ e[3] }}</td>
+                        <td>
+                            {% if e[4] %}
+                                <img src="{{ e[4] }}" alt="pic" style="height:60px;">
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <div/>
+    {% else %}
+        <div class="no-data">{{ T.no_data_range }}</div>
+    {% endif %}
+</div>
+
+{% endblock %}

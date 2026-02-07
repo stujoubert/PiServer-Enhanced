@@ -1,0 +1,301 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* -------------------------
+   Header
+------------------------- */
+.dashboard-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+/* Date picker */
+.date-picker input[type="date"] {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 1rem;
+}
+
+/* -------------------------
+   Main dashboard layout
+------------------------- */
+.dashboard-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+@media (min-width: 992px) {
+    .dashboard-wrapper {
+        grid-template-columns: 1.2fr 2fr;
+        gap: 24px;
+    }
+}
+
+/* -------------------------
+   Cards
+------------------------- */
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.attendance-rate {
+    text-align: center;
+}
+
+.attendance-rate .rate {
+    font-size: 44px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+@media (min-width: 992px) {
+    .attendance-rate .rate {
+        font-size: 56px;
+    }
+}
+
+.attendance-rate .label {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* Stats row */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .value {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.stat .label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* -------------------------
+   Status cards
+------------------------- */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (min-width: 992px) {
+    .status-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+}
+
+.status-card {
+    border: 2px solid #eef0f3;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+}
+
+.ring {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 8px solid #eef0f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 auto 8px auto;
+}
+
+@media (min-width: 992px) {
+    .ring {
+        width: 110px;
+        height: 110px;
+        border-width: 10px;
+        font-size: 26px;
+    }
+}
+
+.ring.present { border-top-color: #22c55e; }
+.ring.late    { border-top-color: #f59e0b; }
+.ring.early   { border-top-color: #fb923c; }
+.ring.missed  { border-top-color: #ef4444; }
+
+/* -------------------------
+   Monthly table
+------------------------- */
+.monthly-title {
+    margin-top: 32px;
+    font-weight: 700;
+}
+
+.monthly-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.monthly-table th,
+.monthly-table td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.9rem;
+}
+
+.monthly-table th {
+    text-align: left;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.monthly-table td {
+    text-align: center;
+}
+
+.monthly-table th.name-col,
+.monthly-table td.name-col {
+    text-align: left !important;
+}
+
+.monthly-table th.id-col,
+.monthly-table td.id-col {
+    width: 110px;
+}
+
+.table-responsive-x {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+</style>
+
+<!-- HEADER -->
+<div class="dashboard-header">
+    <h2>{{ T.app_title }}</h2>
+
+    <form method="get"
+          action="{{ url_for('dashboard.dashboard') }}"
+          class="date-picker">
+        <input type="date"
+               name="date"
+               value="{{ selected_date }}"
+               onchange="this.form.submit()">
+    </form>
+</div>
+
+<!-- DAILY DASHBOARD -->
+<div class="dashboard-wrapper">
+
+    <div class="card attendance-rate">
+        <div class="rate">{{ attendance_rate }}%</div>
+        <div class="label">{{ T.attendance_rate }}</div>
+
+        <div class="stats-row">
+            <div class="stat">
+                <div class="value">{{ expected }}</div>
+                <div class="label">{{ T.expected }}</div>
+            </div>
+            <div class="stat">
+                <div class="value">{{ attended }}</div>
+                <div class="label">{{ T.attended }}</div>
+            </div>
+            <div class="stat">
+                <div class="value">{{ absent }}</div>
+                <div class="label">{{ T.absent }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-grid">
+        <div class="card status-card">
+            <div class="ring present">{{ present }}</div>
+            <div>{{ T.present }}</div>
+        </div>
+
+        <div class="card status-card">
+            <div class="ring late">{{ late }}</div>
+            <div>{{ T.late }}</div>
+        </div>
+
+        <div class="card status-card">
+            <div class="ring early">{{ early_leave }}</div>
+            <div>{{ T.early_leave }}</div>
+        </div>
+
+        <div class="card status-card">
+            <div class="ring missed">{{ missed }}</div>
+            <div>{{ T.missed_check }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- MONTHLY SUMMARY -->
+<h3 class="monthly-title">
+    {{ T.monthly_summary }} – {{ month_label }}
+</h3>
+
+<div class="card">
+    <div class="table-responsive-x">
+        <table class="monthly-table">
+            <thead>
+                <tr>
+                    <th class="id-col">{{ T.employee_id }}</th>
+                    <th class="name-col">{{ T.name }}</th>
+                    <th>{{ T.days_attended }}</th>
+                    <th>{{ T.late }}</th>
+                    <th>{{ T.early_leave }}</th>
+                    <th>{{ T.missed_check }}</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in monthly %}
+                <tr>
+                    <td class="id-col">{{ row.employee_id }}</td>
+                    <td class="name-col">{{ row.name }}</td>
+                    <td>{{ row.attended }}</td>
+                    <td>{{ row.late }}</td>
+                    <td>{{ row.early }}</td>
+                    <td>{{ row.missed }}</td>
+                    <td>{{ row.rate }}%</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" style="text-align:center;color:#666;padding:16px">
+                        {{ T.no_data_range }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

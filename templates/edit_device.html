@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+.card-modern {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 20px;
+}
+.btn-modern {
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 600;
+}
+</style>
+
+<div class="card-modern">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">
+            {{ T.edit or "Edit" }} {{ T.nav_devices or "Device" }}
+        </h3>
+        <a href="{{ url_for('devices.devices_page') }}"
+           class="btn btn-outline-secondary btn-modern">
+            ← {{ T.nav_devices or "Back to Devices" }}
+        </a>
+    </div>
+
+    <form method="post"
+          action="{{ url_for('devices.device_edit', device_id=device[0]) }}">
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.device_name }}</label>
+                <input type="text" name="name" class="form-control"
+                       value="{{ device[1] }}" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.ip_address }}</label>
+                <input type="text" name="ip" class="form-control"
+                       value="{{ device[2] }}" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.device_status }}</label>
+                <select name="active" class="form-select">
+                    <option value="1" {% if device[5] == 1 %}selected{% endif %}>
+                        {{ T.active }}
+                    </option>
+                    <option value="0" {% if device[5] == 0 %}selected{% endif %}>
+                        {{ T.inactive }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.username }}</label>
+                <input type="text" name="username" class="form-control"
+                       value="{{ device[3] or '' }}">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.password }}</label>
+                <input type="password" name="password" class="form-control"
+                       value="{{ device[4] or '' }}">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">
+                    {{ T.supports_fdlib or "FDLib (Face Library)" }}
+                </label>
+                <select name="supports_fdlib" class="form-select">
+                    <option value="0" {% if device[6] == 0 %}selected{% endif %}>
+                        {{ T.disabled or "Disabled" }}
+                    </option>
+                    <option value="1" {% if device[6] == 1 %}selected{% endif %}>
+                        {{ T.enabled or "Enabled" }}
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+        <button class="btn btn-success btn-modern mt-3">
+            {{ T.save }}
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}

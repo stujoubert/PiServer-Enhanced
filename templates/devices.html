@@ -1,0 +1,221 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* -------------------------
+   Cards
+------------------------- */
+.card-modern {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 18px;
+    margin-bottom: 22px;
+}
+
+/* -------------------------
+   Tables
+------------------------- */
+.table-modern {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.table-modern thead th {
+    background: #f5f6f8;
+    border-bottom: 2px solid #e1e3e6;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.table-modern tbody tr:hover {
+    background: #fafbfc;
+}
+
+.table-responsive-x {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------
+   Buttons
+------------------------- */
+.btn-modern {
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 600;
+}
+
+.actions-wrap {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* -------------------------
+   Add device form
+------------------------- */
+.add-device-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+/* -------------------------
+   Mobile adjustments
+------------------------- */
+@media (max-width: 768px) {
+    .add-device-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .actions-wrap {
+        justify-content: flex-start;
+    }
+
+    .table-modern thead th {
+        font-size: 0.8rem;
+    }
+}
+</style>
+
+<!-- ========================= -->
+<!-- ADD DEVICE -->
+<!-- ========================= -->
+<div class="card-modern">
+    <h4 class="fw-bold mb-3">{{ T.add_device }}</h4>
+
+    <form method="post" action="{{ url_for('devices.device_add') }}">
+        <div class="add-device-grid">
+
+            <div>
+                <label class="form-label">{{ T.device_name }}</label>
+                <input type="text" name="name" class="form-control">
+            </div>
+
+            <div>
+                <label class="form-label">{{ T.ip_address }}</label>
+                <input type="text" name="ip" class="form-control" required>
+            </div>
+
+            <div>
+                <label class="form-label">{{ T.username }}</label>
+                <input type="text" name="username" class="form-control">
+            </div>
+
+            <div>
+                <label class="form-label">{{ T.password }}</label>
+                <input type="password" name="password" class="form-control">
+            </div>
+
+        </div>
+
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary btn-modern">
+                {{ T.add_device }}
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ========================= -->
+<!-- DEVICES LIST -->
+<!-- ========================= -->
+<div class="card-modern">
+
+    <!-- HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h3 class="fw-bold mb-0">{{ T.nav_devices }}</h3>
+
+        <a href="{{ url_for('devices.devices_page') }}"
+           class="btn btn-outline-secondary btn-modern">
+            {{ T.apply if T.apply is defined else 'Refresh' }}
+        </a>
+    </div>
+
+    <!-- DEVICES TABLE -->
+    <div class="table-responsive-x">
+        <table class="table table-modern align-middle">
+            <thead>
+                <tr>
+                    <th>{{ T.device_name }}</th>
+                    <th>{{ T.ip_address }}</th>
+                    <th>{{ T.device_status }}</th>
+                    <th>{{ T.last_50_events if T.last_50_events is defined else 'Last Fetch' }}</th>
+                    <th class="text-center">{{ T.events_imported if T.events_imported is defined else 'Events (Last)' }}</th>
+                    <th class="text-end">{{ T.actions }}</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% for d in devices %}
+                <tr>
+                    <!-- Name -->
+                    <td class="fw-semibold">{{ d[1] }}</td>
+
+                    <!-- IP -->
+                    <td>{{ d[2] }}</td>
+
+                    <!-- Status -->
+                    <td>
+                        {% if d[3] %}
+                            <span class="badge bg-success">{{ T.active }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ T.inactive }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Last fetch -->
+                    <td class="small">
+                        {{ d[4] or '—' }}
+                    </td>
+
+                    <!-- Count -->
+                    <td class="small text-center">
+                        {{ d[5] or 0 }}
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td class="text-end">
+                        <div class="actions-wrap">
+
+                            <a href="{{ url_for('devices.device_edit', device_id=d[0]) }}"
+                               class="btn btn-sm btn-outline-secondary btn-modern">
+                                {{ T.edit }}
+                            </a>
+
+                            <a href="{{ url_for('devices.device_fetch_now', device_id=d[0]) }}"
+                               class="btn btn-sm btn-outline-primary btn-modern">
+                                {{ T.fetch_now }}
+                            </a>
+
+                            <form action="{{ url_for('devices.device_toggle', device_id=d[0]) }}"
+                                  method="post">
+                                <button class="btn btn-sm btn-outline-warning btn-modern">
+                                    {{ T.activate if not d[3] else T.deactivate }}
+                                </button>
+                            </form>
+
+                            <form action="{{ url_for('devices.device_delete', device_id=d[0]) }}"
+                                  method="post"
+                                  onsubmit="return confirm('{{ T.confirm_delete }}');">
+                                <button class="btn btn-sm btn-outline-danger btn-modern">
+                                    {{ T.delete }}
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

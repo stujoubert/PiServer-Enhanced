@@ -1,0 +1,142 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+.card-modern {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 20px;
+}
+
+.table-modern thead th {
+    background: #f5f6f8;
+    border-bottom: 2px solid #e1e3e6;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.table-modern tbody tr:hover {
+    background: #fafbfc;
+}
+
+.badge-in { background: #2c7a2c; }
+.badge-out { background: #d9534f; }
+
+.btn-modern {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 6px 16px;
+}
+
+/* =========================
+   MOBILE FIX – DATE PICKER
+   ========================= */
+@media (max-width: 576px) {
+
+    .daily-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+
+    .daily-toggle {
+        width: 100%;
+    }
+
+    .daily-toggle .btn {
+        flex: 1;
+    }
+
+    .daily-date-form {
+        display: flex !important;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 100% !important;
+    }
+
+    .daily-date-form input,
+    .daily-date-form button {
+        width: 100%;
+    }
+}
+</style>
+
+<div class="card-modern">
+
+    <!-- Header with Daily/Weekly toggle -->
+    <div class="d-flex justify-content-between align-items-center mb-3 daily-header">
+        <h3 class="fw-bold mb-0">{{ T.daily_attendance }}</h3>
+
+        <div class="btn-group daily-toggle">
+            <a href="{{ url_for('daily.daily') }}"
+               class="btn btn-modern
+               {% if request.path.startswith('/daily') %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                {{ T.nav_daily }}
+            </a>
+
+            <a href="{{ url_for('weekly.weekly_view') }}"
+               class="btn btn-modern
+               {% if request.path.startswith('/weekly') %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                {{ T.nav_weekly }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Date selector -->
+    <form method="get" class="daily-date-form mb-3" style="max-width:300px;">
+        <input type="date"
+               name="date"
+               value="{{ daily_date }}"
+               class="form-control">
+        <button class="btn btn-primary btn-modern">
+            {{ T.apply }}
+        </button>
+    </form>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-modern align-middle">
+            <thead>
+                <tr>
+                    <th>{{ T.employee_id }}</th>
+                    <th>{{ T.device_name }}</th>
+                    <th>{{ T.col_timestamp }}</th>
+                    <th>{{ T.col_type }}</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for emp_id, data in grouped.items() %}
+                    {% for ev in data.events %}
+                        <tr>
+                            <td>{{ data.name }}</td>
+                            <td>{{ ev[6] }}</td>
+                            <td>{{ ev[4] }}</td>
+                            <td>
+                                {% if ev[5] == "IN" %}
+                                    <span class="badge badge-in">{{ T.in }}</span>
+                                {% else %}
+                                    <span class="badge badge-out">{{ T.out }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+
+                {% if grouped|length == 0 %}
+                    <tr>
+                        <td colspan="4"
+                            class="text-center text-muted py-4">
+                            {{ T.no_data_range }}
+                        </td>
+                    </tr>
+                {% endif %}
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

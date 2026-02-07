@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ T.app_title }}</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            background-color: #e9eaee;
+            font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+            color: #222;
+            padding-top: 78px;
+        }
+
+        a { text-decoration: none !important; }
+
+        .navbar-modern {
+            background: #1b1d21;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+            padding: 0.6rem 0;
+        }
+
+        .navbar-modern .navbar-brand {
+            color: #f5f6f8 !important;
+            font-weight: 600;
+            font-size: 1.15rem;
+            margin-right: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-modern .navbar-brand img {
+            max-height: 32px;
+            width: auto;
+        }
+
+        .navbar-modern .nav-link,
+        .navbar-modern .dropdown-item {
+            color: #cacdd3 !important;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .navbar-modern .nav-link:hover,
+        .navbar-modern .dropdown-item:hover {
+            color: #ffffff !important;
+            background: transparent;
+        }
+
+        .navbar-modern .nav-link.active,
+        .navbar-modern .dropdown-toggle.active {
+            color: #4da3ff !important;
+            font-weight: 700 !important;
+        }
+
+        .dropdown-menu {
+            background: #1f2227;
+            border: none;
+            border-radius: 10px;
+            padding: 8px;
+        }
+
+        .dropdown-item {
+            border-radius: 6px;
+            padding: 6px 12px;
+        }
+
+        .dropdown-item.active {
+            background: #2b6cb0;
+            color: #ffffff !important;
+        }
+
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .footer-modern {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-modern fixed-top">
+    <div class="container-fluid">
+
+        <!-- BRAND -->
+        <a class="navbar-brand"
+           href="{{ url_for('dashboard.dashboard', lang=current_lang) }}">
+            {% if company and company.logo_url %}
+                <img src="{{ company.logo_url }}" alt="Logo">
+            {% endif %}
+            <span>{{ company.name if company and company.name else T.app_title }}</span>
+        </a>
+
+        <button class="navbar-toggler bg-light" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav ms-auto">
+
+            {% if session.get("account_id") %}
+
+                <!-- Attendance -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle
+                       {% if request.path.startswith('/daily')
+                          or request.path.startswith('/weekly') %}active{% endif %}"
+                       href="#" data-bs-toggle="dropdown">
+                        {{ T.daily_attendance }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item {% if request.path.startswith('/daily') %}active{% endif %}"
+                               href="{{ url_for('daily.daily', lang=current_lang) }}">
+                                {{ T.nav_daily }}
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if request.path.startswith('/weekly') %}active{% endif %}"
+                               href="{{ url_for('weekly.weekly_view', lang=current_lang) }}">
+                                {{ T.nav_weekly }}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Payroll -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path.startswith('/payroll') %}active{% endif %}"
+                       href="{{ url_for('payroll.payroll_page', lang=current_lang) }}">
+                        {{ T.nav_payroll }}
+                    </a>
+                </li>
+
+                {% if session.get("role") == "admin" %}
+
+                <!-- Management -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle
+                       {% if request.path.startswith('/schedules/templates')
+                          or request.path.startswith('/users')
+                          or request.path.startswith('/devices')
+                          or request.path.startswith('/accounts')
+                          or request.path.startswith('/company') %}active{% endif %}"
+                       href="#" data-bs-toggle="dropdown">
+                        {{ T.management or "Management" }}
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ url_for('company.company_settings', lang=current_lang) }}">
+                                {{ T.company_settings or "Company Settings" }}
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <!-- Schedules -->
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ url_for('schedule_templates.templates_page', lang=current_lang) }}">
+                                {{ T.advanced_schedules or "Schedule Templates" }}
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <!-- Devices -->
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ url_for('devices.devices_page', lang=current_lang) }}">
+                                {{ T.nav_devices }}
+                            </a>
+                        </li>
+
+                        <!-- NEW: Push users to device -->
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ url_for('device_users.push_users', lang=current_lang) }}">
+                                {{ T.push_users_to_device or "Push Users to Device" }}
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ url_for('users.users_list', lang=current_lang) }}">
+                                {{ T.nav_users }}
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ url_for('accounts.accounts_list', lang=current_lang) }}">
+                                {{ T.nav_accounts or "Accounts" }}
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                {% endif %}
+
+                <!-- Language -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        {{ T.language_label }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'en' %}active{% endif %}"
+                               href="?lang=en">English</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if current_lang == 'es' %}active{% endif %}"
+                               href="?lang=es">Español</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Account -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        {{ session.get("username") }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item"
+                               href="{{ url_for('auth.logout') }}">
+                                {{ T.logout or "Logout" }}
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            {% else %}
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ url_for('auth.login') }}">
+                        {{ T.login or "Login" }}
+                    </a>
+                </li>
+
+            {% endif %}
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="content-wrapper">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<div class="footer-modern">
+    © {{ now().year if now is defined else 2026 }}
+    {{ company.name if company and company.name else T.app_title }}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

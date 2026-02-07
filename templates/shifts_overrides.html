@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* Mobile-friendly table wrapper */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+@media (max-width: 768px) {
+    .attendance-table th,
+    .attendance-table td {
+        white-space: nowrap;
+    }
+}
+.small-text {
+    font-size: 0.85rem;
+    color: #666;
+}
+.inline {
+    display: inline-block;
+}
+</style>
+
+<div class="card">
+    <h2>{{ T.nav_shift_management or 'Shift Management' }} – {{ T.overrides or 'Overrides' }}</h2>
+
+    <form method="post">
+
+        <div class="form-row">
+            <label>{{ T.employee_id or 'Employee ID' }}</label>
+            <input type="text" name="employee_id" required>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.start_date or 'Start Date' }}</label>
+            <input type="date" name="start_date" required>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.end_date or 'End Date' }}</label>
+            <input type="date" name="end_date">
+            <div class="small-text">
+                {{ T.overrides_range_help or
+                'Leave empty for a single day. If you set an end date, the override will apply to every day in that range.' }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.override_shift or 'Override Shift' }}</label>
+            <select name="shift_type_id">
+                <option value="">{{ T.use_default_shift or 'Use normal rotation / default' }}</option>
+                <option value="off">{{ T.day_off or 'Day off (no shift)' }}</option>
+                {% for st in shift_types %}
+                    <option value="{{ st[0] }}">{{ st[1] }}</option>
+                {% endfor %}
+            </select>
+            <div class="small-text">
+                {{ T.override_shift_help or
+                'Choose a shift to force for these day(s), or "Day off" to mark them as off.' }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.note or 'Note' }}</label>
+            <textarea name="note" rows="2"></textarea>
+        </div>
+
+        <button class="btn" type="submit">{{ T.save or 'Save' }}</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>{{ T.recent_overrides or 'Recent Overrides' }}</h3>
+
+    {% if overrides %}
+    <div class="table-wrap">
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>{{ T.employee_id or 'Employee ID' }}</th>
+                    <th>{{ T.date or 'Date' }}</th>
+                    <th>{{ T.shift or 'Shift' }}</th>
+                    <th>{{ T.note or 'Note' }}</th>
+                    <th>{{ T.actions or 'Actions' }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oid, emp_id, day, shift_type_id, note, shift_name in overrides %}
+                <tr>
+                    <td data-label="ID">{{ oid }}</td>
+                    <td data-label="{{ T.employee_id or 'Employee ID' }}">{{ emp_id }}</td>
+                    <td data-label="{{ T.date or 'Date' }}">{{ day }}</td>
+                    <td data-label="{{ T.shift or 'Shift' }}">
+                        {% if shift_type_id and shift_type_id != 'off' %}
+                            {{ shift_name or ('Shift #' ~ shift_type_id) }}
+                        {% else %}
+                            <strong>{{ T.day_off or 'Day off' }}</strong>
+                        {% endif %}
+                    </td>
+                    <td data-label="{{ T.note or 'Note' }}">{{ note }}</td>
+
+                    <td data-label="{{ T.actions or 'Actions' }}">
+                        <form method="post"
+                              action="{{ url_for('shifts_override_delete', override_id=oid, lang=current_lang) }}"
+                              class="inline"
+                              onsubmit="return confirm('{{ T.confirm_delete or 'Delete this item?' }}');">
+                            <button class="btn danger btn-danger" type="submit">
+                                {{ T.delete or 'Delete' }}
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="no-data">{{ T.no_data_range or 'No overrides found.' }}</div>
+    {% endif %}
+</div>
+
+{% endblock %}

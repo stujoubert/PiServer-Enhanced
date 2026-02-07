@@ -1,0 +1,305 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* -------------------------
+   Card
+------------------------- */
+.card-modern {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 18px;
+    margin-bottom: 18px;
+}
+
+/* -------------------------
+   Header
+------------------------- */
+.weekly-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.weekly-header h3 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+/* Buttons */
+.btn-modern {
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 6px 14px;
+}
+
+/* -------------------------
+   Filters
+------------------------- */
+.week-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.week-controls label {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+    .week-controls {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: end;
+    }
+}
+
+/* -------------------------
+   Section titles
+------------------------- */
+.user-header {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.anom-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+/* -------------------------
+   Table
+------------------------- */
+.table-modern thead th {
+    background: #f5f6f8;
+    border-bottom: 2px solid #e1e3e6;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.table-modern tbody td {
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.table-modern tbody tr:hover {
+    background: #fafbfc;
+}
+
+/* Mobile scroll wrapper */
+.table-responsive-x {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------
+   Flags & meta
+------------------------- */
+.flag-badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    border-radius: 6px;
+    background: #fdecea;
+    color: #c0392b;
+    font-weight: 600;
+    margin-left: 4px;
+    display: inline-block;
+}
+
+.punch-count {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+}
+
+/* Small screens */
+@media (max-width: 576px) {
+    .weekly-header h3 {
+        font-size: 1.15rem;
+    }
+}
+</style>
+
+<!-- HEADER -->
+<div class="card-modern">
+    <div class="weekly-header">
+        <h3>{{ T.weekly_attendance }}</h3>
+
+        <div class="btn-group">
+            <a href="{{ url_for('daily.daily') }}"
+               class="btn btn-modern btn-outline-primary">
+                {{ T.nav_daily }}
+            </a>
+            <a href="{{ url_for('weekly.weekly_view') }}"
+               class="btn btn-modern btn-primary">
+                {{ T.nav_weekly }}
+            </a>
+            <a href="{{ url_for('daily_audit.decorator') }}"
+               class="btn btn-modern btn-outline-secondary">
+                {{ T.nav_gallery or 'Audit' }}
+            </a>
+        </div>
+    </div>
+
+    <!-- FILTERS -->
+    <form method="get" class="week-controls">
+
+        <div>
+            <label>{{ T.week_type }}</label>
+            <select name="week_type" class="form-select" onchange="this.form.submit()">
+                <option value="mon_fri" {% if week_type=='mon_fri' %}selected{% endif %}>
+                    {{ T.week_mon_fri }}
+                </option>
+                <option value="mon_sun" {% if week_type=='mon_sun' %}selected{% endif %}>
+                    {{ T.week_mon_sat }}
+                </option>
+                <option value="sat_fri" {% if week_type=='sat_fri' %}selected{% endif %}>
+                    {{ T.week_sat_fri }}
+                </option>
+            </select>
+        </div>
+
+        <div>
+            <label>{{ T.date }}</label>
+            <input type="date"
+                   name="date"
+                   value="{{ selected_date }}"
+                   class="form-control"
+                   onchange="this.form.submit()">
+        </div>
+
+        <div>
+            <label>{{ T.employee_id }}</label>
+            <select name="user" class="form-select" onchange="this.form.submit()">
+                <option value="">{{ T.all_users or 'All users' }}</option>
+                {% for uid, uname in users %}
+                    <option value="{{ uid }}"
+                        {% if selected_user and (selected_user|string) == (uid|string) %}
+                            selected
+                        {% endif %}>
+                        {{ uname }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </form>
+
+    <div class="fw-semibold">
+        {{ T.week_prefix }}:
+        <strong>{{ week_start }}</strong> → <strong>{{ week_end }}</strong>
+    </div>
+</div>
+
+<!-- ANOMALY SUMMARY -->
+<div class="card-modern">
+    <div class="anom-title">{{ T.weekly_summary_title }}</div>
+
+    {% if anomalies and anomalies|length > 0 %}
+        <div class="table-responsive-x">
+            <table class="table table-modern align-middle">
+                <thead>
+                    <tr>
+                        <th>{{ T.date }}</th>
+                        <th>{{ T.name }}</th>
+                        <th>{{ T.first_in }}</th>
+                        <th>{{ T.last_out }}</th>
+                        <th>{{ T.hours }}</th>
+                        <th>{{ T.punches or 'Punches' }}</th>
+                        <th>{{ T.flags or 'Flags' }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in anomalies %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('daily_audit.decorator', date=a.day, user=a.emp_id) }}"
+                                   class="text-decoration-none fw-semibold">
+                                    {{ a.day }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ a.name }}
+                                <span class="punch-count">({{ a.emp_id }})</span>
+                            </td>
+                            <td>{{ a.in or "-" }}</td>
+                            <td>{{ a.out or "-" }}</td>
+                            <td>{{ "%.2f"|format(a.hours) }}</td>
+                            <td><span class="punch-count">{{ a.punches }}</span></td>
+                            <td>
+                                {% for f in a.flags %}
+                                    <span class="flag-badge">{{ f }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-muted">
+            {{ T.no_data_range }}
+        </div>
+    {% endif %}
+</div>
+
+<!-- USER SECTIONS -->
+{% if summary %}
+    {% for emp_id, data in summary.items() %}
+        <div class="card-modern">
+            <div class="user-header">{{ data.name }}</div>
+
+            <div class="table-responsive-x">
+                <table class="table table-modern align-middle">
+                    <thead>
+                        <tr>
+                            <th>{{ T.date }}</th>
+                            <th>{{ T.first_in }}</th>
+                            <th>{{ T.last_out }}</th>
+                            <th>{{ T.hours }}</th>
+                            <th>{{ T.punches or 'Punches' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day, rec in data.days.items() %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('daily_audit.decorator', date=day, user=emp_id) }}"
+                                       class="text-decoration-none fw-semibold">
+                                        {{ day }}
+                                    </a>
+                                    {% if rec.flags %}
+                                        {% for f in rec.flags %}
+                                            <span class="flag-badge">{{ f }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                                <td>{{ rec.in or "-" }}</td>
+                                <td>{{ rec.out or "-" }}</td>
+                                <td>{{ "%.2f"|format(rec.hours) }}</td>
+                                <td><span class="punch-count">{{ rec.punches }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card-modern">
+        <p class="mb-0">{{ T.no_data_range }}</p>
+    </div>
+{% endif %}
+
+{% endblock %}
