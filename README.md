@@ -90,3 +90,20 @@ Password: Set during installation
 ---
 
 **Ready to deploy!** See documentation for full details.
+
+## 🔧 Troubleshooting
+
+### Database Issues
+
+If you encounter database errors after installation, run the repair script:
+```bash
+cd /opt/attendance
+sudo ./repair-database.sh
+```
+
+This will:
+- Create a backup of your database
+- Add any missing columns
+- Verify table structure
+- Create admin account if missing
+- Restart the service
