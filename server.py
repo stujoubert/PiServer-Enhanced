@@ -32,8 +32,8 @@ sys.path.insert(0, BASE_DIR)
 # --------------------------------------------------
 # Database bootstrap (idempotent, safe)
 # --------------------------------------------------
-from scripts.bootstrap_db import main as bootstrap_db
-bootstrap_db()
+#from scripts.bootstrap_db import main as bootstrap_db
+#bootstrap_db()
 
 # --------------------------------------------------
 # Flask app setup
