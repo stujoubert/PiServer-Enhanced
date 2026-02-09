@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>{{ T.shift_rotations_title or "Shift Rotations" }}</h2>
+
+    <a class="btn" href="{{ url_for('shift_rotations_add', lang=current_lang) }}">
+        {{ T.add_rotation or "Add Rotation" }}
+    </a>
+
+    {% if rows %}
+    <table class="attendance-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>{{ T.name or "Name" }}</th>
+                <th>{{ T.pattern or "Pattern" }}</th>
+                <th>{{ T.actions or "Actions" }}</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for r in rows %}
+            <tr>
+
+                <td data-label="ID">{{ r.id }}</td>
+
+                <td data-label="{{ T.name or 'Name' }}">
+                    {{ r.name }}
+                </td>
+
+                <td data-label="{{ T.pattern or 'Pattern' }}">
+                    {% if r.pattern.type == "weekly" %}
+                        <strong>{{ T.weekly or "Weekly" }}:</strong><br>
+                        Mon: {{ r.pattern.mon or "-" }}<br>
+                        Tue: {{ r.pattern.tue or "-" }}<br>
+                        Wed: {{ r.pattern.wed or "-" }}<br>
+                        Thu: {{ r.pattern.thu or "-" }}<br>
+                        Fri: {{ r.pattern.fri or "-" }}<br>
+                        Sat: {{ r.pattern.sat or "-" }}<br>
+                        Sun: {{ r.pattern.sun or "-" }}
+
+                    {% elif r.pattern.type == "cycle" %}
+                        <strong>{{ T.cycle or "Cycle" }} {{ r.pattern.length }} {{ T.days or "days" }}</strong><br>
+                        {{ T.starting or "Starting" }}: {{ r.pattern.start_date }}<br><br>
+                        {% for day in r.pattern.days %}
+                            {{ T.day or "Day" }} {{ loop.index }}:
+                            {{ day or (T.off or "Off") }}
+                            {% if not loop.last %}<br>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </td>
+
+                <td data-label="{{ T.actions or 'Actions' }}">
+                    <form method="post"
+                          action="{{ url_for('shift_rotations_delete', rotation_id=r.id, lang=current_lang) }}"
+                          onsubmit="return confirm('{{ T.confirm_delete or "Delete this rotation?" }}');">
+                        <button class="btn danger btn-danger">
+                            {{ T.delete or "Delete" }}
+                        </button>
+                    </form>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <div class="no-data">
+        {{ T.no_rotations or "No rotations defined yet." }}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

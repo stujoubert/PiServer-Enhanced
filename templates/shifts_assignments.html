@@ -1,0 +1,225 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* --- Layout --- */
+.assign-container {
+    display: flex;
+    gap: 20px;
+}
+
+/* Left column: employee list */
+.assign-left {
+    width: 260px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.assign-left h3 {
+    margin-top: 0;
+}
+
+.emp-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.emp-item a {
+    color: #333;
+    text-decoration: none;
+}
+
+.emp-item.selected {
+    background: #d9e6ff;
+    font-weight: bold;
+}
+
+/* Right panel */
+.assign-right {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+/* Tables */
+.history-table,
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.history-table th,
+.history-table td,
+.preview-table th,
+.preview-table td {
+    padding: 6px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+/* Form */
+.assignment-form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* Mobile Friendly */
+@media (max-width: 768px) {
+    .assign-container {
+        flex-direction: column;
+    }
+    .assign-left {
+        width: 100%;
+        max-height: 200px;
+    }
+}
+</style>
+
+<h2>{{ T.shift_assignments_title or "Shift Assignments" }}</h2>
+
+<a class="btn" href="{{ url_for('shifts_assign_bulk', lang=current_lang) }}">
+    {{ T.bulk_assign_rotations or "Bulk Assign Rotations" }}
+</a>
+
+<div class="assign-container">
+
+    <!-- LEFT: Employee List -->
+    <div class="assign-left">
+        <h3>{{ T.employees or "Employees" }}</h3>
+
+        {% for emp_id, name in employees %}
+            <div class="emp-item {% if emp_id == selected_employee_id %}selected{% endif %}">
+                <a href="{{ url_for('shift_assignments', lang=current_lang, employee_id=emp_id) }}">
+                    {{ name }} <br>
+                    <small>{{ T.id or "ID" }}: {{ emp_id }}</small>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="assign-right">
+
+        {% if selected_employee_id %}
+
+            <h3>
+                {{ selected_employee_name }}
+                <small style="color:#666;">({{ T.id or "ID" }}: {{ selected_employee_id }})</small>
+            </h3>
+
+            {% if current_rotation %}
+                <div class="card" style="margin: 10px 0; padding: 10px;">
+                    <strong>{{ T.current_rotation or "Current Rotation" }}:</strong> {{ current_rotation.name }}<br>
+                    <strong>{{ T.start or "Start" }}:</strong> {{ current_rotation.start_date }}<br>
+                    <strong>{{ T.end or "End" }}:</strong> {{ current_rotation.end_date or T.open or "Open" }}
+                </div>
+            {% endif %}
+
+            <!-- NEW ASSIGNMENT FORM -->
+            <div class="card" style="padding: 15px; margin-top: 10px;">
+                <h4>{{ T.assign_new_rotation or "Assign New Rotation" }}</h4>
+
+                <form method="post" class="assignment-form">
+                    <input type="hidden" name="employee_id" value="{{ selected_employee_id }}">
+
+                    <label>{{ T.rotation or "Rotation" }}:</label>
+                    <select name="rotation_id" required>
+                        <option value="">{{ T.select_rotation or "-- Select rotation --" }}</option>
+                        {% for rid, rname in rotations %}
+                            <option value="{{ rid }}">{{ rname }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label>{{ T.start_date or "Start Date" }}:</label>
+                    <input type="date" name="start_date" value="{{ current_date or '' }}" required>
+
+                    <label>{{ T.end_date or "End Date (optional)" }}:</label>
+                    <input type="date" name="end_date">
+
+                    <button class="btn" type="submit">
+                        {{ T.save or "Save Assignment" }}
+                    </button>
+                </form>
+            </div>
+
+            <!-- ASSIGNMENT HISTORY -->
+            {% if history %}
+                <div class="card" style="padding: 15px; margin-top: 20px;">
+                    <h4>{{ T.assignment_history or "Assignment History" }}</h4>
+
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>{{ T.rotation or "Rotation" }}</th>
+                                <th>{{ T.start or "Start" }}</th>
+                                <th>{{ T.end or "End" }}</th>
+                                <th>{{ T.actions or "Actions" }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for h in history %}
+                            <tr>
+                                <td>{{ h[0] }}</td>
+                                <td>{{ h[2] }}</td>
+                                <td>{{ h[3] }}</td>
+                                <td>{{ h[4] or "Open" }}</td>
+                                <td>
+                                    <form method="post"
+                                          action="{{ url_for('shifts_assignment_delete', assign_id=h[0], lang=current_lang) }}"
+                                          onsubmit="return confirm('{{ T.confirm_delete or "Delete this item?" }}');">
+                                        <button class="btn-small btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            {% endif %}
+
+            <!-- PREVIEW NEXT 7 DAYS -->
+            <div class="card" style="padding: 15px; margin-top: 20px;">
+                <h4>{{ T.next_7_days or "Next 7 Days (Preview)" }}</h4>
+
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>{{ T.date or "Date" }}</th>
+                            <th>{{ T.scheduled_shift or "Scheduled Shift" }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in preview_days %}
+                        <tr>
+                            <td>{{ p.date }}</td>
+                            <td>{{ p.label }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+            <div class="card">Select a user from the left.</div>
+        {% endif %}
+
+    </div> <!-- END assign-right -->
+
+</div> <!-- END assign-container -->
+
+{% endblock %}

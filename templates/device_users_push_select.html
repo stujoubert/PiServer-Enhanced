@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern">
+
+    <h3 class="fw-bold mb-3">
+        {{ T.push_users_to_device or "Push Users to Device" }} — {{ device.name }}
+    </h3>
+
+    <form method="post"
+          action="{{ url_for('device_users.push_users_execute',
+                             device_id=device.id,
+                             lang=current_lang) }}">
+
+        <div class="table-responsive">
+            <table class="table table-modern align-middle">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox"
+                                   onclick="document.querySelectorAll('.user-check')
+                                            .forEach(c => c.checked = this.checked)">
+                        </th>
+                        <th>{{ T.employee_id }}</th>
+                        <th>{{ T.name }}</th>
+                        <th>{{ T.face }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for u in users %}
+                    <tr>
+                        <td>
+                            <input type="checkbox"
+                                   class="user-check"
+                                   name="user_ids[]"
+                                   value="{{ u.id }}">
+                        </td>
+                        <td>{{ u.employee_id }}</td>
+                        <td>{{ u.name }}</td>
+                        <td>
+                            {% if u.face_path %}
+                                ✅
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-primary">
+                {{ T.push or "Push to Device" }}
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

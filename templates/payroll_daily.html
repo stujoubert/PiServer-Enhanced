@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="card">
+    <h2>Daily Payroll — {{ date }}</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Hours Worked</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in rows %}
+            <tr>
+                <td>{{ r.name }}</td>
+                <td>{{ r.in or "-" }}</td>
+                <td>{{ r.out or "-" }}</td>
+                <td>{{ r.hours }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

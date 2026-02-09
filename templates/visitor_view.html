@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern">
+  <h3 class="fw-bold mb-3">
+    Visitor Pass #{{ visitor.id }}
+  </h3>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-6"><b>Visitor:</b> {{ visitor.visitor_name }}</div>
+    <div class="col-md-6"><b>Status:</b> {{ visitor.status }}</div>
+    <div class="col-md-6"><b>Valid From:</b> {{ visitor.valid_from }}</div>
+    <div class="col-md-6"><b>Expires:</b> {{ visitor.expires_at }}</div>
+    <div class="col-md-6"><b>Issued By:</b> {{ visitor.issued_by_employee_id }}</div>
+  </div>
+
+  {% if visitor.status == 'active' %}
+  <form method="post"
+        action="{{ url_for('visitors.visitors_revoke', visitor_id=visitor.id) }}"
+        onsubmit="return confirm('Revoke this visitor pass?');">
+    <button class="btn btn-danger btn-modern">
+      Revoke Visitor
+    </button>
+  </form>
+  {% endif %}
+</div>
+
+{% endblock %}

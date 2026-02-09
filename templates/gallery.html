@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>{{ T.nav_gallery or 'Gallery' }}</h2>
+
+    {% if images and images|length > 0 %}
+
+    <div class="gallery-grid">
+        {% for img in images %}
+        <div class="gallery-card">
+
+            <div class="gallery-thumb">
+                <img src="{{ img.thumb_url }}"
+                     alt="pic"
+                     loading="lazy">
+            </div>
+
+            <div class="gallery-info">
+                <div class="gallery-title"><strong>{{ img.name }}</strong></div>
+                <div>{{ T.employee_id or 'Employee ID' }}: {{ img.employee_id }}</div>
+                <div class="small-text">{{ img.timestamp }}</div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PAGINATION CONTROLS -->
+    <div class="pagination-controls">
+        {% if page > 1 %}
+            <a href="{{ url_for('gallery', page=page-1) }}" class="btn btn-secondary">← {{ T.previous or 'Previous' }}</a>
+        {% endif %}
+
+        <span class="page-indicator">
+            {{ T.page or 'Page' }} {{ page }} {{ T.of or 'of' }} {{ total_pages }}
+        </span>
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('gallery', page=page+1) }}" class="btn btn-primary">{{ T.next or 'Next' }} →</a>
+        {% endif %}
+    </div>
+
+    {% else %}
+        <div class="no-data">{{ T.no_data_range or 'No data available' }}</div>
+    {% endif %}
+</div>
+
+<style>
+/* GRID WRAPPER */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1rem;
+}
+
+/* CARD */
+.gallery-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* IMAGE THUMBNAIL */
+.gallery-thumb {
+    background: #eee;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.gallery-thumb img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    max-height: 160px;
+}
+
+/* INFO */
+.gallery-info {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.gallery-title {
+    margin-bottom: 0.2rem;
+}
+
+/* PAGINATION */
+.pagination-controls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination-controls .btn {
+    margin: 0 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.page-indicator {
+    font-weight: bold;
+}
+
+/* MOBILE OPTIMIZATION */
+@media (max-width: 600px) {
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    .pagination-controls .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+}
+</style>
+
+{% endblock %}

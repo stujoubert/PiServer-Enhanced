@@ -1,0 +1,237 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+.card-modern {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 20px;
+}
+
+.btn-modern {
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 600;
+}
+
+.camera-box {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 340px;
+}
+</style>
+
+<div class="card-modern">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">
+            {{ T.add_user or 'Add User' }}
+        </h3>
+
+        <a href="{{ url_for('users.users_list') }}"
+           class="btn btn-outline-secondary btn-modern">
+            ← {{ T.back_to_users or 'Back to Users' }}
+        </a>
+    </div>
+
+    <form method="post" action="{{ url_for('users.users_add') }}">
+
+        <!-- ===================== -->
+        <!-- USER INFO             -->
+        <!-- ===================== -->
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.employee_id or 'Employee ID' }}</label>
+                <input type="text"
+                       name="employee_id"
+                       class="form-control"
+                       value="{{ next_employee_id }}"
+                       required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.name or 'Name' }}</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">{{ T.device_name or 'Device' }}</label>
+                <select name="device_id" class="form-select" required>
+                    <option value="">{{ T.select_device or 'Select device' }}</option>
+                    {% for d in devices %}
+                        <option value="{{ d['id'] if d.id is not defined else d.id }}">
+                            {{ d['name'] if d.name is not defined else d.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <!-- ===================== -->
+        <!-- FACE CAPTURE          -->
+        <!-- ===================== -->
+
+        <h5>Face Capture</h5>
+
+        <!-- LIVE CAMERA (HTTPS ONLY) -->
+        <div id="camera-section" class="camera-box mb-3">
+            <video id="video" width="320" height="240" autoplay playsinline></video>
+            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+
+            <div class="mt-2">
+                <button type="button"
+                        class="btn btn-outline-primary btn-sm"
+                        onclick="startCamera()">
+                    Start Camera
+                </button>
+
+                <button type="button"
+                        class="btn btn-outline-success btn-sm"
+                        onclick="captureFace()">
+                    Capture
+                </button>
+            </div>
+
+            <small class="text-muted d-block mt-1">
+                Live camera requires HTTPS.
+            </small>
+        </div>
+
+        <!-- UNIVERSAL FALLBACK (WORKS EVERYWHERE) -->
+        <div class="mb-3">
+            <label class="form-label">
+                Upload Face Photo (Recommended on phones)
+            </label>
+
+            <input type="file"
+                   class="form-control"
+                   accept="image/*"
+                   capture="user"
+                   onchange="uploadFallback(this)">
+        </div>
+
+        <!-- HIDDEN FIELD SENT TO BACKEND -->
+        <input type="hidden" name="face_image" id="face_image">
+
+        <!-- ===================== -->
+        <!-- SAVE                  -->
+        <!-- ===================== -->
+
+        <button class="btn btn-success btn-modern mt-2">
+            ✓ {{ T.save_user or 'Save User' }}
+        </button>
+
+    </form>
+</div>
+
+<!-- ===================== -->
+<!-- SCRIPT               -->
+<!-- ===================== -->
+
+<script>
+let stream = null;
+
+/* Utility: compress image to max 640px and ~120KB */
+function compressImage(img, callback) {
+    const MAX_SIZE = 640;
+
+    let w = img.width;
+    let h = img.height;
+
+    if (w > h && w > MAX_SIZE) {
+        h = Math.round(h * (MAX_SIZE / w));
+        w = MAX_SIZE;
+    } else if (h > MAX_SIZE) {
+        w = Math.round(w * (MAX_SIZE / h));
+        h = MAX_SIZE;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, w, h);
+
+    // Strong compression to keep Base64 small
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+    callback(dataUrl);
+}
+
+/* Live camera start (unchanged) */
+function startCamera() {
+    if (!window.isSecureContext ||
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
+        alert("Live camera not available. Please use photo upload.");
+        return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(s => {
+            stream = s;
+            document.getElementById("video").srcObject = s;
+        })
+        .catch(err => alert("Camera error: " + err.message));
+}
+
+/* Capture from live camera → compress → hidden field */
+function captureFace() {
+    if (!stream) {
+        alert("Camera not started");
+        return;
+    }
+
+    const video = document.getElementById("video");
+    const tempCanvas = document.createElement("canvas");
+
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    tempCanvas.getContext("2d").drawImage(video, 0, 0);
+
+    const img = new Image();
+    img.onload = () => {
+        compressImage(img, dataUrl => {
+            document.getElementById("face_image").value = dataUrl;
+            alert("Face captured and compressed.");
+        });
+    };
+
+    img.src = tempCanvas.toDataURL("image/jpeg");
+}
+
+/* File upload fallback → compress → hidden field */
+function uploadFallback(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    const img = new Image();
+
+    reader.onload = e => {
+        img.onload = () => {
+            compressImage(img, dataUrl => {
+                document.getElementById("face_image").value = dataUrl;
+                alert("Image uploaded and compressed.");
+            });
+        };
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
+</script>
+
+
+{% endblock %}

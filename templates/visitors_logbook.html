@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3 class="mb-3">Visitor Logbook</h3>
+
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Badge</th>
+      <th>Status</th>
+      <th>Valid Until</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in passes %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.visitor_name }}</td>
+      <td>{{ p.visitor_employee_no }}</td>
+      <td>
+        <span class="badge bg-{{
+          'success' if p.status == 'active'
+          else 'secondary' if p.status == 'expired'
+          else 'danger'
+        }}">
+          {{ p.status }}
+        </span>
+      </td>
+      <td>{{ p.valid_until }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary"
+           href="{{ url_for('visitors.visitor_view', visitor_id=p.id) }}">
+          View
+        </a>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="6" class="text-center text-muted">
+        No visitor passes found
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+
+    <h2>{{ device_name }} – {{ T.test_connection or 'Test Connection' }}</h2>
+
+    <p>
+        <strong>{{ T.status or 'Status' }}:</strong> {{ status }}<br>
+        <strong>HTTP:</strong> {{ http_code }}
+    </p>
+
+    <h3>{{ T.raw_response or 'Raw Response' }}</h3>
+
+    <pre class="response-box">{{ raw_response }}</pre>
+
+    <br>
+
+    <a href="{{ url_for('devices_page', lang=current_lang) }}" class="btn secondary btn-secondary">
+        ← {{ T.back or 'Back' }}
+    </a>
+
+</div>
+
+
+<style>
+.response-box {
+    max-height: 400px;
+    overflow: auto;
+    background: #f7f7f7;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 1px solid #ddd;
+}
+
+/* Mobile improvement */
+@media (max-width: 600px) {
+    .response-box {
+        font-size: 0.8rem;
+        padding: 0.8rem;
+    }
+}
+</style>
+
+{% endblock %}

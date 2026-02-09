@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- FILTER CARD -->
+<div class="card">
+    <h2>{{ T.custom_attendance_report or 'Custom Attendance Report' }}</h2>
+    <p>{{ T.custom_attendance_subtitle or 'Generate a custom attendance report for a selected date range.' }}</p>
+
+    <form method="get" action="{{ url_for('custom_report_page', lang=current_lang) }}">
+
+        <!-- Start Date -->
+        <div class="form-row">
+            <label>{{ T.start_date or 'Start Date' }}:</label>
+            <input type="date" name="start" value="{{ start_date }}">
+        </div>
+
+        <!-- End Date -->
+        <div class="form-row">
+            <label>{{ T.end_date or 'End Date' }}:</label>
+            <input type="date" name="end" value="{{ end_date }}">
+        </div>
+
+        <!-- Hour Calculation Mode -->
+        <div class="form-row">
+            <label>{{ T.hours_calculation_mode or 'Hours Calculation Mode' }}:</label>
+
+            <div class="mode-group">
+
+                <label class="mode-option">
+                    <input type="radio" name="mode" value="first_last"
+                           {% if mode == 'first_last' %}checked{% endif %}>
+                    <strong>{{ T.mode_first_last or 'First & Last Event' }}</strong>
+                    <span class="small-text">({{ T.mode_first_last_desc }})</span>
+                </label>
+
+                <label class="mode-option">
+                    <input type="radio" name="mode" value="paired"
+                           {% if mode == 'paired' %}checked{% endif %}>
+                    <strong>{{ T.mode_sequential_pairs or 'Sequential Pairs' }}</strong>
+                    <span class="small-text">({{ T.mode_sequential_pairs_desc }})</span>
+                </label>
+
+                <label class="mode-option">
+                    <input type="radio" name="mode" value="all_pairs"
+                           {% if mode == 'all_pairs' %}checked{% endif %}>
+                    <strong>{{ T.mode_sum_pairs or 'Sum of All Pairs' }}</strong>
+                    <span class="small-text">({{ T.mode_sum_pairs_desc }})</span>
+                </label>
+
+            </div>
+        </div>
+
+        <button class="btn" type="submit">{{ T.apply or 'Apply' }}</button>
+    </form>
+</div>
+
+<!-- RESULTS CARD -->
+{% if start_date and end_date %}
+<div class="card">
+
+    <h3>
+        {{ T.custom_attendance_report or 'Custom Attendance Report' }} –
+        {{ start_date }} → {{ end_date }}
+    </h3>
+
+    <p class="small-text">
+        {{ T.hours_calculation_mode or 'Hours Calculation Mode' }}:
+        {% if mode == 'first_last' %}
+            {{ T.mode_first_last }}
+        {% elif mode == 'paired' %}
+            {{ T.mode_sequential_pairs }}
+        {% elif mode == 'all_pairs' %}
+            {{ T.mode_sum_pairs }}
+        {% endif %}
+    </p>
+
+    <div class="button-row">
+        <a class="btn"
+           href="{{ url_for('reports_custom_download',
+                            start=start_date,
+                            end=end_date,
+                            mode=mode,
+                            format='xlsx',
+                            lang=current_lang) }}">
+            {{ T.download_excel or 'Download Excel' }}
+        </a>
+
+        <a class="btn"
+           href="{{ url_for('reports_custom_download',
+                            start=start_date,
+                            end=end_date,
+                            mode=mode,
+                            format='pdf',
+                            lang=current_lang) }}">
+            {{ T.download_pdf or 'Download PDF' }}
+        </a>
+    </div>
+
+</div>
+{% endif %}
+
+<!-- CUSTOM STYLES -->
+<style>
+.mode-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-top: 0.4rem;
+}
+
+.mode-option input {
+    margin-right: 0.4rem;
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.button-row .btn {
+    margin: 0;
+}
+
+/* Mobile Improvements */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row label {
+        margin-bottom: 0.3rem;
+    }
+
+    .mode-group {
+        padding-left: 0.2rem;
+    }
+
+    .mode-option {
+        display: block;
+    }
+
+    .button-row .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+
+{% endblock %}

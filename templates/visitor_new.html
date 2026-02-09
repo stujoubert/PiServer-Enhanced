@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold mb-0">New Visitor Pass</h3>
+    <a class="btn btn-outline-secondary btn-modern"
+       href="{{ url_for('visitors.visitors_logbook') }}">Back</a>
+  </div>
+
+  <form method="post">
+
+    <!-- REQUIRED: visitor_name -->
+    <div class="mb-3">
+      <label class="form-label">Visitor Name *</label>
+      <input name="visitor_name"
+             class="form-control"
+             required>
+    </div>
+
+    <!-- REQUIRED: device_id -->
+    <div class="mb-3">
+      <label class="form-label">Device *</label>
+      <select name="device_id" class="form-select" required>
+        <option value="">-- select device --</option>
+        {% for d in devices %}
+          <option value="{{ d.id }}">{{ d.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- REQUIRED: valid_from -->
+    <div class="mb-3">
+      <label class="form-label">Valid From *</label>
+      <input type="datetime-local"
+             name="valid_from"
+             class="form-control"
+             required>
+    </div>
+
+    <!-- REQUIRED: valid_until (NOT expires_at) -->
+    <div class="mb-4">
+      <label class="form-label">Valid Until *</label>
+      <input type="datetime-local"
+             name="valid_until"
+             class="form-control"
+             required>
+    </div>
+
+    <button class="btn btn-primary btn-modern">
+      Create Visitor Pass
+    </button>
+
+  </form>
+</div>
+
+{% endblock %}

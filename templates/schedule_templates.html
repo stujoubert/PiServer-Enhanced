@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h3 class="fw-bold mb-0">
+            {{ T.advanced_schedules }}
+        </h3>
+
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('schedule_templates_assign.schedules_assign_ui', lang=current_lang) }}"
+               class="btn btn-primary btn-modern">
+                {{ T.assign_templates }}
+            </a>
+
+            <button class="btn btn-outline-primary btn-modern"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createTemplateModal">
+                {{ T.create_template }}
+            </button>
+        </div>
+    </div>
+
+    <!-- TEMPLATES TABLE -->
+    <div class="table-responsive">
+        <table class="table table-modern align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>{{ T.template_name }}</th>
+                    <th>{{ T.description }}</th>
+                    <th class="text-end">{{ T.actions }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in templates %}
+                <tr>
+                    <td>{{ t.id }}</td>
+                    <td class="fw-semibold">{{ t.name }}</td>
+                    <td class="text-muted">
+                        {{ t.description or T.no_description }}
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for(
+                                'schedule_templates.edit_template',
+                                template_id=t.id,
+                                lang=current_lang
+                            ) }}"
+                           class="btn btn-sm btn-outline-secondary">
+                            {{ T.edit }}
+                        </a>
+
+                        <a href="{{ url_for(
+                                'schedule_templates.weekly_preview',
+                                template_id=t.id,
+                                lang=current_lang
+                            ) }}"
+                           class="btn btn-sm btn-outline-info">
+                            {{ T.preview }}
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        {{ T.no_templates }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- CREATE TEMPLATE MODAL -->
+<div class="modal fade" id="createTemplateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="post"
+              action="{{ url_for('schedule_templates.create_template', lang=current_lang) }}"
+              class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {{ T.create_template }}
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">
+                        {{ T.template_name }}
+                    </label>
+                    <input type="text"
+                           name="name"
+                           class="form-control"
+                           required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        {{ T.description }}
+                    </label>
+                    <textarea name="description"
+                              class="form-control"
+                              rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary">
+                    {{ T.create }}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern" style="max-width:720px;margin:0 auto;">
+    <h3 class="fw-bold mb-4">{{ T.company_settings }}</h3>
+
+    <form method="post" enctype="multipart/form-data">
+
+        <!-- Company Name -->
+        <div class="mb-3">
+            <label class="form-label">{{ T.company_name }}</label>
+            <input type="text"
+                   name="name"
+                   class="form-control"
+                   value="{{ company.name or '' }}">
+        </div>
+
+        <!-- RFC -->
+        <div class="mb-3">
+            <label class="form-label">{{ T.company_rfc }}</label>
+            <input type="text"
+                   name="rfc"
+                   class="form-control"
+                   value="{{ company.rfc or '' }}">
+        </div>
+
+        <!-- Logo -->
+        <div class="mb-3">
+            <label class="form-label">{{ T.company_logo }}</label>
+
+            {% if company.logo_url %}
+                <div class="mb-2">
+                    <img src="{{ company.logo_url }}"
+                         style="max-height:80px"
+                         class="img-fluid">
+                </div>
+            {% endif %}
+
+            <input type="file"
+                   name="logo"
+                   accept="image/*"
+                   class="form-control">
+        </div>
+
+        <div class="text-end">
+            <button class="btn btn-primary">
+                {{ T.save_changes }}
+            </button>
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

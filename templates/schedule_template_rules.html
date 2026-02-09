@@ -1,0 +1,94 @@
+<style>
+/* FORCE default (unchecked) state */
+.weekday-picker .btn-outline-primary {
+    background-color: transparent !important;
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+/* CHECKED state = filled */
+.weekday-picker .btn-check:checked + .btn-outline-primary {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+    border-color: #0d6efd !important;
+}
+</style>
+
+<div class="card mb-4">
+    <div class="card-body">
+
+        <h5 class="fw-bold mb-3">
+            {{ T.rules if T.rules is defined else 'Weekly Rules & Shifts' }}
+        </h5>
+
+        <!-- ========================= -->
+        <!-- ADD RULE (DAY SELECTION) -->
+        <!-- ========================= -->
+        <form method="post"
+              action="{{ url_for('schedule_templates.add_rule', template_id=template.id) }}"
+              class="mb-4">
+
+            <label class="form-label fw-semibold mb-2">
+                {{ T.select_days if T.select_days is defined else 'Select working days' }}
+            </label>
+
+            <div class="weekday-picker d-flex gap-2 flex-wrap mb-3">
+                {% for d in [
+                    ('0','Mon'),('1','Tue'),('2','Wed'),
+                    ('3','Thu'),('4','Fri'),('5','Sat'),('6','Sun')
+                ] %}
+                    <input
+                        class="btn-check"
+                        type="checkbox"
+                        name="weekdays"
+                        value="{{ d[0] }}"
+                        id="day{{ d[0] }}"
+                        autocomplete="off"
+                    >
+
+                    <label
+                        class="btn btn-outline-primary btn-sm"
+                        for="day{{ d[0] }}"
+                    >
+                        {{ d[1] }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <button class="btn btn-outline-primary btn-sm">
+                {{ T.add_rule if T.add_rule is defined else 'Add rule' }}
+            </button>
+        </form>
+
+        <!-- ================= -->
+        <!-- EXISTING RULES -->
+        <!-- ================= -->
+        {% if rules %}
+            {% set labels = {
+                '0':'Mon','1':'Tue','2':'Wed',
+                '3':'Thu','4':'Fri','5':'Sat','6':'Sun'
+            } %}
+
+            {% for r in rules %}
+                <div class="border rounded p-3 mb-3">
+                    <div class="fw-semibold mb-2">
+                        {{ T.days if T.days is defined else 'Days' }}
+                    </div>
+
+                    <div class="d-flex gap-1 flex-wrap">
+                        {% for d in r.weekdays.split(',') %}
+                            <span class="badge bg-primary">
+                                {{ labels[d] }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-muted">
+                {{ T.no_rules if T.no_rules is defined else 'No rules yet.' }}
+            </div>
+        {% endif %}
+
+    </div>
+</div>

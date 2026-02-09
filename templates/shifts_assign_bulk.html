@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card">
+    <h2>{{ T.nav_shift_management or 'Shift Management' }} â€ Bulk Assignment</h2>
+
+    <form method="post">
+
+        <div class="form-row">
+            <label>{{ T.name or 'Name' }} / {{ T.employee_id or 'Employee ID' }}</label>
+            <div class="small-text">
+                Select the employees you want to assign to the same rotation.
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>{{ T.start_date or 'Start Date' }}</label>
+            <input type="date" name="start_date" required
+                   value="{{ (request.args.get('start_date') or '') }}">
+        </div>
+
+        <div class="form-row">
+            <label>Rotation</label>
+            <select name="rotation_id" required>
+                <option value="">{{ 'Select rotation' }}</option>
+                {% for rot in rotations %}
+                    <option value="{{ rot[0] }}">{{ rot[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <hr>
+
+        <div class="small-text" style="margin-bottom:0.5rem;">
+            Employees (from devices):
+        </div>
+
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 0.5rem;">
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{ T.employee_id or 'Employee ID' }}</th>
+                        <th>{{ T.name or 'Name' }}</th>
+                        <th>{{ T.device_name or 'Device' }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp_id, name, device_id, device_name in users %}
+                    <tr>
+                        <td data-label="">
+                            <input type="checkbox" name="employee_id" value="{{ emp_id }}">
+                        </td>
+                        <td data-label="{{ T.employee_id or 'Employee ID' }}">
+                            {{ emp_id }}
+                        </td>
+                        <td data-label="{{ T.name or 'Name' }}">
+                            {{ name }}
+                        </td>
+                        <td data-label="{{ T.device_name or 'Device' }}">
+                            {{ device_name }}{% if device_id %} (ID {{ device_id }}){% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not users %}
+                    <tr>
+                        <td colspan="4" class="no-data">
+                            No device users found. Try syncing users from devices first.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top:1rem;">
+            <button class="btn" type="submit">
+                Assign rotation to selected
+            </button>
+            <a class="btn secondary btn-secondary"
+               href="{{ url_for('shift_assignments', lang=current_lang) }}">
+                Back to assignments
+            </a>
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

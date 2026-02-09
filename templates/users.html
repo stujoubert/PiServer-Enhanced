@@ -1,0 +1,195 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+.card-modern {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.table-modern thead th {
+    background: #f5f6f8;
+    border-bottom: 2px solid #e1e3e6;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.table-modern tbody tr:hover {
+    background: #fafbfc;
+}
+
+.face-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+}
+
+.btn-modern {
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-weight: 600;
+}
+</style>
+
+<div class="card-modern">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">
+            {{ T.users or "Users" }}
+        </h3>
+
+        <div>
+            <a href="{{ url_for('users.users_add') }}"
+               class="btn btn-success btn-modern me-2">
+                + {{ T.add_user or "Add User" }}
+            </a>
+
+            {% if show_inactive %}
+                <a href="{{ url_for('users.users_list') }}"
+                   class="btn btn-outline-secondary btn-modern">
+                    {{ T.hide_inactive or "Hide inactive" }}
+                </a>
+            {% else %}
+                <a href="{{ url_for('users.users_list', show_inactive=1) }}"
+                   class="btn btn-outline-secondary btn-modern">
+                    {{ T.show_inactive or "Show inactive" }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- GLOBAL / DEVICE ACTIONS -->
+    <div class="mb-3 d-flex flex-wrap gap-2">
+
+        <form method="post"
+              action="{{ url_for('users.resync_users') }}">
+            <button type="submit"
+                    class="btn btn-warning btn-modern"
+                    onclick="return confirm('{{ T.confirm_resync_users or "Re-sync users from device?" }}');">
+                {{ T.resync_users_from_device or "Re-sync Users from Device" }}
+            </button>
+        </form>
+
+        <form method="post"
+              action="{{ url_for('users.import_fdlib_faces') }}">
+            <button type="submit"
+                    class="btn btn-info btn-modern"
+                    onclick="return confirm('{{ T.confirm_import_faces or "Import faces from device FDLib?" }}');">
+                {{ T.import_faces_from_device or "Import Faces from Device" }}
+            </button>
+        </form>
+
+        <form method="post"
+              action="{{ url_for('users.promote_snapshots_bulk') }}">
+            <input type="hidden" name="limit" value="50">
+            <button type="submit"
+                    class="btn btn-secondary btn-modern"
+                    onclick="return confirm('{{ T.confirm_promote_snapshots or "Promote event snapshots to user faces?" }}');">
+                {{ T.promote_event_snapshots or "Promote Event Snapshots" }}
+            </button>
+        </form>
+
+    </div>
+
+    <!-- USERS TABLE -->
+    <div class="table-responsive">
+        <table class="table table-modern align-middle">
+            <thead>
+                <tr>
+                    <th>{{ T.face or "Face" }}</th>
+                    <th>{{ T.employee_id or "Employee ID" }}</th>
+                    <th>{{ T.name or "Name" }}</th>
+                    <th>{{ T.device_name or "Device" }}</th>
+                    <th>{{ T.faces or "Faces" }}</th>
+                    <th>{{ T.status or "Status" }}</th>
+                    <th class="text-end">{{ T.actions or "Actions" }}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for u in users %}
+                <tr class="{% if not u.is_active %}table-secondary{% endif %}">
+                    <td>
+                        {% if u.face_url %}
+                            <img src="{{ u.face_url }}"
+                                 class="face-thumb"
+                                 alt="{{ T.face or 'Face' }}">
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ u.employee_id }}</td>
+                    <td>{{ u.name }}</td>
+                    <td>{{ u.device_name }}</td>
+                    <td>{{ u.face_count }}</td>
+
+                    <td>
+                        {% if u.is_active %}
+                            <span class="badge bg-success">{{ T.active or "Active" }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ T.inactive or "Inactive" }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end">
+
+                        <!-- EDIT USER -->
+                        <a href="{{ url_for('users.users_edit', employee_id=u.employee_id) }}"
+                           class="btn btn-sm btn-outline-secondary btn-modern me-1">
+                            {{ T.edit or "Edit" }}
+                        </a>
+
+                        <!-- VIEW FACES -->
+                        <a href="{{ url_for('users.user_faces', employee_id=u.employee_id) }}"
+                           class="btn btn-sm btn-outline-primary btn-modern me-1">
+                            {{ T.faces or "Faces" }}
+                        </a>
+
+                        <!-- TOGGLE ACTIVE -->
+                        <form method="post"
+                              action="{{ url_for('users.toggle_user_active', employee_id=u.employee_id) }}"
+                              style="display:inline;">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-warning btn-modern me-1">
+                                {% if u.is_active %}
+                                    {{ T.deactivate or "Deactivate" }}
+                                {% else %}
+                                    {{ T.activate or "Activate" }}
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        <!-- DELETE USER -->
+                        <form method="post"
+                              action="{{ url_for('users.users_delete', employee_id=u.employee_id) }}"
+                              style="display:inline;"
+                              onsubmit="return confirm('{{ (T.confirm_delete_user or "Delete user {name} ({id})?\\n\\nThis cannot be undone.").format(name=u.name, id=u.employee_id) }}');">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger btn-modern">
+                                {{ T.delete or "Delete" }}
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">
+                        {{ T.no_users_found or "No users found." }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

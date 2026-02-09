@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern">
+
+    <h3 class="fw-bold mb-3">
+        {{ T.push_users_to_device or "Push Users to Device" }}
+    </h3>
+
+    <form method="get"
+          action="{{ url_for('device_users.push_users', lang=current_lang) }}">
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                {{ T.select_device or "Select Device" }}
+            </label>
+
+            <select class="form-select" name="device_id" required>
+                <option value="">
+                    {{ T.select_device_placeholder or "— Select a device —" }}
+                </option>
+
+                {% for d in devices %}
+                    <option value="{{ d.id }}">
+                        {{ d.name }}
+                        {% if d.ip %} ({{ d.ip }}){% endif %}
+                        {% if d.model %} {{ d.model }}{% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button class="btn btn-primary">
+            {{ T.next or "Next" }}
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

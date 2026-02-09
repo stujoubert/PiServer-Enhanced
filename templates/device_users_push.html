@@ -1,0 +1,162 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern">
+
+    <h3 class="fw-bold mb-3">
+        {{ T.push_users_to_device or "Push Users to Device" }}
+    </h3>
+
+    {# ---------------------------
+       STEP 1: Select devices (GET)
+       --------------------------- #}
+    <form method="get" action="{{ url_for('device_users.push_users', lang=current_lang) }}" class="mb-4">
+
+        <div class="row g-3">
+
+            <div class="col-12 col-lg-6">
+                <label class="form-label fw-semibold">
+                    {{ T.select_target_device or "Select Target Device" }}
+                </label>
+                <select class="form-select" name="device_id" required>
+                    <option value="">{{ T.select_device_placeholder or "— Select a device —" }}</option>
+                    {% for d in devices %}
+                        <option value="{{ d.id }}"
+                                {% if selected_device and d.id == selected_device.id %}selected{% endif %}>
+                            {{ d.name }} ({{ d.ip }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <label class="form-label fw-semibold">
+                    {{ T.select_source_device or "Select Source Device (faces)" }}
+                </label>
+                <select class="form-select" name="source_device_id">
+                    <option value="">{{ T.optional or "Optional" }}</option>
+                    {% for d in devices %}
+                        <option value="{{ d.id }}"
+                                {% if selected_source and d.id == selected_source.id %}selected{% endif %}>
+                            {{ d.name }} ({{ d.ip }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">
+                    {{ T.source_device_hint or "If faces are stored on a terminal, select it here. Otherwise the system will use each user's stored face URL." }}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+            <button class="btn btn-primary">
+                {{ T.next or "Next" }}
+            </button>
+
+            {% if selected_device %}
+                <a class="btn btn-outline-secondary"
+                   href="{{ url_for('device_users.push_users', lang=current_lang) }}">
+                    {{ T.reset or "Reset" }}
+                </a>
+            {% endif %}
+        </div>
+
+    </form>
+
+    {# ---------------------------
+       STEP 2/3: Users selection (POST)
+       --------------------------- #}
+    {% if selected_device %}
+
+        <form method="post" action="{{ url_for('device_users.push_users', lang=current_lang) }}">
+
+            <input type="hidden" name="device_id" value="{{ selected_device.id }}">
+            {% if selected_source %}
+                <input type="hidden" name="source_device_id" value="{{ selected_source.id }}">
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <div class="fw-semibold">
+                    {{ T.selected_device or "Target" }}:
+                    <span class="text-muted">{{ selected_device.name }} ({{ selected_device.ip }})</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <label class="form-label mb-0 small">{{ T.fdid or "FDID" }}</label>
+                    <input name="fdid" class="form-control form-control-sm" style="width: 90px" value="1">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-modern align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 44px;">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th style="width: 120px;">{{ T.employee_id or "Employee ID" }}</th>
+                            <th>{{ T.name or "Name" }}</th>
+                            <th style="width: 140px;">{{ T.face or "Face" }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for u in users %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="user_ids[]" value="{{ u.employee_id }}" class="userBox">
+                            </td>
+                            <td class="fw-semibold">{{ u.employee_id }}</td>
+                            <td>{{ u.name }}</td>
+                            <td>
+                                {% if u.picture_url %}
+                                    <img src="{{ u.picture_url }}"
+                                         alt="face"
+                                         style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:1px solid rgba(0,0,0,0.15);">
+                                {% else %}
+                                    <span class="text-muted small">{{ T.no_face or "No face" }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-muted text-center py-4">
+                                {{ T.no_users or "No users found." }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                <button class="btn btn-success">
+                    {{ T.push_selected or "Push Selected Users" }}
+                </button>
+
+                <a class="btn btn-outline-secondary"
+                   href="{{ url_for('device_users.push_users', device_id=selected_device.id, source_device_id=(selected_source.id if selected_source else None), lang=current_lang) }}">
+                    {{ T.refresh or "Refresh" }}
+                </a>
+            </div>
+
+        </form>
+
+        <script>
+            (function () {
+                const selectAll = document.getElementById("selectAll");
+                const boxes = () => Array.from(document.querySelectorAll(".userBox"));
+
+                if (selectAll) {
+                    selectAll.addEventListener("change", function () {
+                        boxes().forEach(cb => cb.checked = selectAll.checked);
+                    });
+                }
+            })();
+        </script>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

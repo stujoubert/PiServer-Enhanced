@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="card-modern">
+
+    <h3 class="fw-bold mb-3">
+        {{ T.push_users_to_device or "Push Users to Device" }}
+    </h3>
+
+    <form method="post">
+
+        <!-- DEVICE SELECT -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">
+                {{ T.select_device or "Select Device" }}
+            </label>
+            <select name="device_id" class="form-select" required>
+                {% for d in devices %}
+                    <option value="{{ d.id }}">{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- USERS TABLE -->
+        <div class="table-responsive">
+            <table class="table table-modern align-middle">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox"
+                                   onclick="toggleAll(this)">
+                        </th>
+                        <th>{{ T.employee_id }}</th>
+                        <th>{{ T.name }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for u in users %}
+                    <tr>
+                        <td>
+                            <input type="checkbox"
+                                   name="user_ids[]"
+                                   value="{{ u.employee_id }}">
+                        </td>
+                        <td>{{ u.employee_id }}</td>
+                        <td>{{ u.name }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-primary">
+                {{ T.push or "Push to Device" }}
+            </button>
+        </div>
+
+    </form>
+
+    <!-- RESULTS -->
+    {% if results %}
+        <hr>
+        <h5 class="fw-bold mt-3">
+            {{ T.results or "Results" }}
+        </h5>
+
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>{{ T.employee_id }}</th>
+                    <th>{{ T.status }}</th>
+                    <th>{{ T.details }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in results %}
+                <tr class="
+                    {% if r.status == 'ok' %}table-success{% endif %}
+                    {% if r.status == 'warning' %}table-warning{% endif %}
+                    {% if r.status == 'failed' %}table-danger{% endif %}
+                ">
+                    <td>{{ r.employee_id }}</td>
+                    <td>{{ r.status }}</td>
+                    <td>{{ r.reason or "" }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+</div>
+
+<script>
+function toggleAll(master) {
+    document
+      .querySelectorAll('input[name="user_ids[]"]')
+      .forEach(cb => cb.checked = master.checked);
+}
+</script>
+
+{% endblock %}

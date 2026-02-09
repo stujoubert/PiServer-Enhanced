@@ -1,0 +1,188 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+.card-modern {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.audit-header {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.audit-table th {
+    background: #f5f6f8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.audit-table td {
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.audit-note {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+}
+
+.flag-badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    border-radius: 6px;
+    background: #fdecea;
+    color: #c0392b;
+    font-weight: 600;
+    margin-left: 6px;
+}
+
+.dup {
+    background: #fdecea;
+}
+</style>
+
+<div class="card-modern">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">
+            {{ T.daily_audit or 'Daily Audit' }}
+        </h3>
+
+        <div class="btn-group">
+            <a href="{{ url_for('daily.daily') }}" class="btn btn-outline-primary">
+                {{ T.nav_daily or 'Daily' }}
+            </a>
+            <a href="{{ url_for('weekly.weekly_view') }}" class="btn btn-outline-primary">
+                {{ T.nav_weekly or 'Weekly' }}
+            </a>
+            <a href="{{ url_for('daily_audit.decorator') }}" class="btn btn-primary">
+                {{ T.audit or 'Audit' }}
+            </a>
+            <a href="{{ url_for('daily_audit.daily_audit_export',
+                                date=selected_date,
+                                user=selected_user,
+                                device=selected_device) }}"
+               class="btn btn-outline-secondary">
+                {{ T.export_csv or 'Export CSV' }}
+            </a>
+        </div>
+    </div>
+
+    <!-- FILTERS -->
+    <form method="get" class="row g-3 mb-4">
+
+        <div class="col-auto">
+            <label class="form-label fw-semibold">
+                {{ T.date or 'Date' }}
+            </label>
+            <input type="date"
+                   name="date"
+                   value="{{ selected_date }}"
+                   class="form-control"
+                   onchange="this.form.submit()">
+        </div>
+
+        <div class="col-auto">
+            <label class="form-label fw-semibold">
+                {{ T.user or 'User' }}
+            </label>
+            <select name="user" class="form-select" onchange="this.form.submit()">
+                <option value="">
+                    {{ T.all_users or 'All users' }}
+                </option>
+                {% for uid, uname in users %}
+                    <option value="{{ uid }}"
+                        {% if selected_user and (selected_user|string) == (uid|string) %}
+                            selected
+                        {% endif %}>
+                        {{ uname }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <label class="form-label fw-semibold">
+                {{ T.device_name or 'Device' }}
+            </label>
+            <select name="device" class="form-select" onchange="this.form.submit()">
+                <option value="">
+                    {{ T.all_devices or 'All devices' }}
+                </option>
+                {% for d in devices %}
+                    <option value="{{ d.id }}"
+                        {% if selected_device and (selected_device|string) == (d.id|string) %}
+                            selected
+                        {% endif %}>
+                        {{ d.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </form>
+
+    <p class="audit-note">
+        {{ T.audit_note or
+           'This view shows raw punches only. IN/OUT and hours are calculated elsewhere.' }}
+        <br>
+        {{ T.duplicate_note or
+           'Rows highlighted in red are likely duplicates (≤ 60 seconds apart).' }}
+    </p>
+
+</div>
+
+{% if data and data.items() %}
+    {% for emp_id, u in data.items() %}
+        <div class="card-modern">
+
+            <div class="audit-header">
+                {{ u.name }}
+                <span class="text-muted small">({{ emp_id }})</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table audit-table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>{{ T.time or 'Time' }}</th>
+                            <th>{{ T.device_name or 'Device' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ev in u.events %}
+                            <tr class="{% if ev.duplicate %}dup{% endif %}">
+                                <td>
+                                    {{ ev.time }}
+                                    {% if ev.duplicate %}
+                                        <span class="flag-badge">
+                                            {{ T.duplicate or 'dup' }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ ev.device }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card-modern">
+        <p class="mb-0 text-muted">
+            {{ T.no_data_range or 'No events found for this date.' }}
+        </p>
+    </div>
+{% endif %}
+
+{% endblock %}
