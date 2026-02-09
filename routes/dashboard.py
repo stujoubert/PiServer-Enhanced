@@ -188,7 +188,7 @@ def dashboard():
     conn.close()
 
     return render_template(
-        "dashboard.html",
+        "dashboard_improved.html",
         selected_date=selected_date,
         expected=expected,
         attended=attended,
